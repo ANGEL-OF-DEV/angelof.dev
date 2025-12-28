@@ -55,7 +55,7 @@ ij_any_align_group_field_declarations = true
 #
 #-------------------------------------------------------------------------------
 
-[*.{cs, json, jsonc, md, yaml, yml}]
+[*.{cs, csproj, json, jsonc, md, props, slnx, yaml, yml}]
 indent_style = space
 indent_size  = 2
 tab_width    = 2

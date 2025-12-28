@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Root Directory/">
+    <File Path=".editorconfig"/>
+    <File Path=".gitattributes"/>
+    <File Path=".gitignore"/>
+  </Folder>
+  <Folder Name="/StdLib/">
+    <Project Path="StdLib/Sources/StandardLibrary/StandardLibrary.csproj"/>
+  </Folder>
+</Solution>
