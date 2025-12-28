@@ -6,11 +6,13 @@
     <File Path="ChangeLog.md"/>
     <File Path="DecisionLog.md"/>
     <File Path="Directory.Build.props"/>
+    <File Path="Directory.Packages.props"/>
     <File Path="ReadMe.md"/>
     <File Path="Solution.sln.DotSettings"/>
   </Folder>
   <Folder Name="/StdLib/">
     <File Path="StdLib/Directory.Build.props"/>
+    <File Path="StdLib/Directory.Packages.props"/>
     <Project Path="StdLib/Sources/StandardLibrary/StandardLibrary.csproj"/>
   </Folder>
 </Solution>
