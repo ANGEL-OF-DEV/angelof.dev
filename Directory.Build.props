@@ -11,4 +11,12 @@
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <ArtifactsPath>$(MSBuildThisFileDirectory)Artifacts/$(SolutionName)</ArtifactsPath>
   </PropertyGroup>
+
+  <PropertyGroup Label="MSBuild Fix - Unsupported repository extension">
+    <!--
+    Can re-enable from dotnet:release/10.0.2
+    See: https://github.com/dotnet/sourcelink/pull/1505
+    -->
+    <SuppressImplicitGitSourceLink>true</SuppressImplicitGitSourceLink>
+  </PropertyGroup>
 </Project>
