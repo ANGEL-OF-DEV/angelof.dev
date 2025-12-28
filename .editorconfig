@@ -1,0 +1,58 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+max_line_length = 144
+file_header_template = {fileName} | LICENSED UNDER THE 𝗘𝗨𝗣𝗟 [eupl.eu/1.2/en]
+
+#-------------------------------------------------------------------------------
+#
+#    Style, format and syntax rules applied to all files should:
+#    - Make reading of diffs easy
+#    - Make changes in diffs stand out
+#    - Balance the two opposing forces:
+#      - Minimize the size of diffs, so they are easier and quicker to read
+#      - Maximize the utility diffs, so they make imapact of changes clear
+#      As with any balancing act, it takes time to get right;
+#      Be ready to compromise, taking into account changing code contributors,
+#      frameworks, tools and other factors, not all directly linked to codebase;
+#    - Be as strict as needed when first created;
+#      It's always possible to loosen then them,
+#      It becomes really hard to make them more strict as more code is added;
+#    - Be stable, as much as possible; 
+#      (overly strict rules are britle, overly lose rules aren't rules)
+#    - Be removed when they bring no value;
+#
+#-------------------------------------------------------------------------------
+
+# Whitespace
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# Braces
+braces_for_dowhile = required
+braces_for_fixed = required
+braces_for_for = required
+braces_for_foreach = required
+braces_for_ifelse = required
+braces_for_lock = required
+braces_for_using = required
+braces_for_while = required
+braces_redundant = false
+
+#-------------------------------------------------------------------------------
+#
+#    Specific Rules
+#    - Indent style and sizes may need to be repeated
+#      for compatiblity with tools, even if unchanged from [*]
+#
+#-------------------------------------------------------------------------------
+
+[*.{cs, json, jsonc, yaml, yml}]
+indent_style = space
+indent_size = 2
+tab_width = 2
