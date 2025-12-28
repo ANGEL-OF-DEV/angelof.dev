@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup Label="Repository Layout">
+    <WorktreeRootDirectory>$(MSBuildThisFileDirectory)</WorktreeRootDirectory>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)Artifacts/$(SolutionName)</ArtifactsPath>
+  </PropertyGroup>
+</Project>
