@@ -39,6 +39,20 @@ without a clear indication as to where they are being applied from.
 </Project>
 ```
 
+## Use [Central NuGet Package Management (CPM)](https://learn.microsoft.com/nuget/consume-packages/central-package-management)
+
+Central Package Management is enabled in `$/Directory.Packages.props`.
+
+```msbuild
+<!-- $/Directory.Packages.props -->
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>
+```
+
+
 ## References:
 
 - [MSBuild Documantation](https://learn.microsoft.com/visualstudio/msbuild/)
