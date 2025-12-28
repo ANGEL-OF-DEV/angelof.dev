@@ -1,0 +1,29 @@
+#-------------------------------------------------------------------------------
+#   NEWLINE & ENCODING
+#-------------------------------------------------------------------------------
+#
+#   CANONICAL NEW-LINE in this repo aligns with LINUX.
+#   For that reason, "end_of_line=lf" is the standard for all files.
+#
+#   CANONICAL ENCODING in this repo is UTF-8 WITHOUT BOM.
+#   For that reason, "charset=utf-8" is the standard for all files.
+#
+#   Use of non-standard values MUST be justified in a comment.
+#
+#-------------------------------------------------------------------------------
+* text=auto eol=lf encoding=UTF-8
+#-------------------------------------------------------------------------------
+#   TEST & SOURCE FILES
+#-------------------------------------------------------------------------------
+*.cs      text
+*.csproj  text
+*.md      text
+*.slnx    text
+*.txt     text
+#-------------------------------------------------------------------------------
+#   GIT LFS
+#-------------------------------------------------------------------------------
+*.blob  filter=lfs diff=lfs merge=lfs -text
+*.ico   filter=lfs diff=lfs merge=lfs -text
+*.nupkg filter=lfs diff=lfs merge=lfs -text
+*.webp  filter=lfs diff=lfs merge=lfs -text

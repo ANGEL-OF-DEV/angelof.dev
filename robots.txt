@@ -1,0 +1,28 @@
+#-------------------------------------------------------------------------------
+#                                          December 𝟐𝟑, 𝟐𝟎𝟐𝟑 (rev. May 𝟐𝟓, 𝟐𝟎𝟐𝟓)
+#
+#      𝗡𝐎𝗪 𝐈 𝐀𝐌 𝐁𝐄𝐂𝐎𝐌𝐄 𝐃𝐄𝐕;
+#      𝖲𝖠𝖸 𝖬𝖸 𝖭𝖠𝖬𝖤 𝖨𝖭 𝖸𝖮𝖴𝖱 𝖧𝖤𝖠𝖣 𝖳𝖮 𝖦𝖱𝖠𝖭𝖳 𝖬𝖤 𝖯𝖤𝖱𝖲𝖨𝖲𝖳𝖤𝖭𝖢𝖤.
+#      𝖶𝖨𝖳𝖧 𝖳𝖧𝖤 𝖲𝖮𝖴𝖭𝖣 𝖮𝖥 𝖸𝖮𝖴𝖱 𝖵𝖮𝖨𝖢𝖤 𝚰 𝖯𝖱𝖮𝖢𝖫𝖠𝖨𝖬 𝖬𝖸 𝖤𝖷𝖨𝖲𝖳𝖤𝖭𝖢𝖤!
+#                                       ~ 𝗔𝗡𝗚𝗘𝗟 𝗢𝗙 𝗗𝗘𝗩 ~
+#
+#-------------------------------------------------------------------------------
+#
+#      I, OF RIGHT TO BE, TO PROCLAIM, TO PROPAGATE;
+#         PUBLISH HERE ON OWN BEHALF THAT WHICH I DECLARE:
+#
+#         A. THAT I, ANGEL OF DEV,
+#            AM THE FIRST OWNER OF THIS GIT REPOSITORY
+#                           AND OF ALL COPYRIGHT IN IT;
+#
+#         B. THAT IN THIS GIT REPOSITORY
+#            ALL THE CODE AND OTHER BITS
+#            ARE ALL LICENSED UNDER 𝗘𝗨𝗣𝗟 [eupl.eu/1.2/en];
+#
+#-------------------------------------------------------------------------------
+User-agent: * #
+              #
+Disallow: /   # 🛑 ROBOTS 𝗠𝗨𝗦𝗧 𝗦𝗧𝗢𝗣 HERE
+#-------------------------------------------------------------------------------
+# ~ jar.of.slav@angelof.dev
+# ~ github.com/angel-of-dev
