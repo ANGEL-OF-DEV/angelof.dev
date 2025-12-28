@@ -52,7 +52,7 @@ braces_redundant = false
 #
 #-------------------------------------------------------------------------------
 
-[*.{cs, json, jsonc, yaml, yml}]
+[*.{cs, json, jsonc, md, yaml, yml}]
 indent_style = space
 indent_size = 2
 tab_width = 2
