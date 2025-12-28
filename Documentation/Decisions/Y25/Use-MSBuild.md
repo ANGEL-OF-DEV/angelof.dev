@@ -7,6 +7,39 @@ Use Microsoft Build Engine to drive core build infrastructure in this repository
 Build artifacts are created in `$/Artifacts` directory. <br/>
 Contents are local only and excluded from soruce control.
 
+## Define Standard Project Properties (applied automatically)
+
+Standard MSBuild Properties are defined in top-level `$/Directory.Build.props`. <br/>
+
+```msbuild
+<!-- $/Directory.Build.props -->
+<Project>
+  <PropertyGroup Label="Standard Properties (applied automatically)">
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>
+```
+
+The standards are automatically applied to projects in the solution. <br/>
+Individual projects do not need to reference the standard properties explicitly. <br/>
+
+> Consider defining properties as **standard** if:
+> - They are unlikely to change
+> - They are unlikely to change between projects in solution or directory in which they apply
+
+```msbuild
+<!-- ProjectOne.csproj -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
+    <RootNamespace>$(DefaultRootNamespace)</RootNamespace>
+    <AssemblyName>$(DefaultAssemblyName)</AssemblyName>
+  </PropertyGroup>
+</Project>
+```
+
 ## Define Default Project Properties (not applied automatically)
 
 Default MSBuild Properties are defined in top-level `$/Directory.Build.props`. <br/>
@@ -38,6 +71,11 @@ without a clear indication as to where they are being applied from.
   </PropertyGroup>
 </Project>
 ```
+
+> Consider defining properties as **default** if:
+> - They are likely to change infrequently (**Target Framework Version**)
+> - They are likely to be customised by some indivdiual projects (**Root Namespace**)
+> - They are likely to be remain unchanged in most projects (**Assembly Name**)
 
 ## Use [Central NuGet Package Management (CPM)](https://learn.microsoft.com/nuget/consume-packages/central-package-management)
 

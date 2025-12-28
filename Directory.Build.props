@@ -6,6 +6,12 @@
     <DefaultAssemblyName>$(DefaultRootNamespace)</DefaultAssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup Label="Standard Properties (applied automatically)">
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
   <PropertyGroup Label="Repository Layout">
     <WorktreeRootDirectory>$(MSBuildThisFileDirectory)</WorktreeRootDirectory>
     <UseArtifactsOutput>true</UseArtifactsOutput>
