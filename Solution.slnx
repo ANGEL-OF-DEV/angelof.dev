@@ -6,6 +6,7 @@
     <File Path="ChangeLog.md"/>
     <File Path="DecisionLog.md"/>
     <File Path="Directory.Build.props"/>
+    <File Path="ReadMe.md"/>
     <File Path="Solution.sln.DotSettings"/>
   </Folder>
   <Folder Name="/StdLib/">
