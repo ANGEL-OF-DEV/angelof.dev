@@ -1,0 +1,47 @@
+:root {
+    [print-only],
+    .print-only {
+        display: none;
+        visibility: collapse;
+    }
+}
+
+@media print {
+    [print-page-break],
+    .page-break {
+        break-before: page;
+    }
+
+    [print-exact],
+    .print-exact {
+        -webkit-print-color-adjust: exact;
+    }
+
+    :not([print-exact]):not(.print-exact) {
+        background-color: unset;
+    }
+
+    img,
+    [print-exclude],
+    .print-exclude {
+        float: none !important;
+        display: none !important;
+        visibility: collapse !important;
+    }
+
+    [print-only],
+    .print-only {
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    /*
+        Apply minimal extra padding to root div.
+        This is a quick fix for a scenario when a pixel of content is cut-out when printing.
+        This fix is easier to implement than testing and fixing individual components.
+    */
+    div.root {
+        padding-left: 1px;
+        padding-right: 1px;
+    }
+}

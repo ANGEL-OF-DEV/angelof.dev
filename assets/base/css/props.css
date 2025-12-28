@@ -1,0 +1,105 @@
+﻿@layer base {
+    :root {
+        --roundness: 0;
+        --border-style: solid;
+        --border-width-factor: 0.08;
+
+        --scrollbar-width-factor: 1;
+
+        --color-not-implemented-background: var(--color-red-w3);
+        --color-not-implemented-foreground: var(--color-yellow-w3);
+        --color-background: var(--color-khaki);
+        --color-track: var(--color-background);
+        --color-thumb: var(--color-khaki-w1);
+        --color-hover: var(--color-khaki-w2);
+        --color-prose: var(--color-pencil);
+        --color-prose-strong: var(--color-slate);
+        --color-prose-em: var(--color-brown);
+        --color-prose-h1: var(--color-red);
+        --color-prose-h2: var(--color-red);
+        --color-prose-h3: var(--color-slate);
+        --color-prose-h4: var(--color-slate);
+        --color-prose-h5: var(--color-slate);
+        --color-prose-h6: var(--color-slate);
+        --color-prose-a: inherit;
+
+        --font-family-sans: var(--font-quicksand);
+        --font-family-serif: var(--font-quicksand);
+        --font-family-mono: var(--font-fira-code);
+
+        --weight-thin: 300;
+        --weight-normal: 400;
+        --weight-half-semi: 500;
+        --weight-semi: 600;
+        --weight-bold: 800;
+
+        --weight-prose-strong: var(--weight-bold);
+        --weight-prose-em: var(--weight-semi);
+        --weight-prose-i: var(--weight-half-semi);
+        --weight-prose-b: var(--weight-bold);
+
+        --size-factor: 1;
+        --size-minus-6: calc(8 * var(--size-factor));
+        --size-minus-5: calc(10 * var(--size-factor));
+        --size-minus-4: calc(12 * var(--size-factor));
+        --size-minus-3: calc(14 * var(--size-factor));
+        --size-minus-2: calc(16 * var(--size-factor));
+        --size-minus-1: calc(18 * var(--size-factor));
+        --size-baseline: calc(20 * var(--size-factor));
+        --size-plus-1: calc(22 * var(--size-factor));
+        --size-plus-2: calc(26 * var(--size-factor));
+        --size-plus-3: calc(30 * var(--size-factor));
+        --size-plus-4: calc(34 * var(--size-factor));
+        --size-plus-5: calc(38 * var(--size-factor));
+        --size-plus-6: calc(42 * var(--size-factor));
+
+        --size-prose-h1: var(--size-plus-6);
+        --size-prose-h2: var(--size-plus-5);
+        --size-prose-h3: var(--size-plus-4);
+        --size-prose-h4: var(--size-plus-3);
+        --size-prose-h5: var(--size-plus-2);
+        --size-prose-h6: var(--size-plus-1);
+        --size-prose-p: var(--size-baseline);
+
+        --padding-prose-header-factor: 0.2;
+        --padding-prose-hx-pair-factor: 0.05;
+        --margin-compact-content-x-factor: 0.2;
+
+        --padding-container-factor: 1;
+        --padding-span-x-factor: 0.4;
+        --padding-span-y-factor: 0.04;
+
+        --layout-width-min: 720;
+        --layout-width-max: 1440;
+    }
+
+    @media screen and (max-width: 740px) {
+        :root {
+            --layout-width: var(--layout-width-min);
+            --margin-compact-content-x-factor: 1;
+        }
+
+        *[maybe],
+        *.maybe {
+            float: none !important;
+            display: none !important;
+        }
+
+        /*
+            Apply extra margin on some elements directly under root divs.
+            This is to move content away from screen-edge where it does not look great.
+        */
+        div.root div > p,
+        div.root div > ul,
+        div.root div > details {
+            margin-left: calc(1em * var(--margin-compact-content-x-factor));
+            margin-right: calc(1em * (2 * var(--margin-compact-content-x-factor)));
+        }
+    }
+
+    @media screen and (min-width: 1440px) {
+        :root {
+            --layout-width: var(--layout-width-max);
+        }
+    }
+}

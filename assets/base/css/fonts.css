@@ -1,0 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Quicksand:wght@300..700&display=swap");
+@font-face {
+    font-family: "Essays 1743";
+    src: url("../fonts/Essays1743.ttf");
+    src:
+        local("Essays 1743"),
+        url("../fonts/Essays1743.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@layer base {
+    :root {
+        --font-essays: "Essays 1743", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+        --font-quicksand: Quicksand, serif;
+        --font-fira-code: "Fira Code", monospace;
+    }
+
+    .font-fira-code-300 {
+        font-family: "Fira Code", serif;
+        font-optical-sizing: auto;
+        font-weight: 300;
+        font-style: normal;
+    }
+
+    .font-fira-code-400 {
+        font-family: "Fira Code", serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .font-fira-code-500 {
+        font-family: "Fira Code", serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+
+    .font-fira-code-600 {
+        font-family: "Fira Code", serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+    }
+
+    .font-fira-code-700 {
+        font-family: "Fira Code", serif;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        font-style: normal;
+    }
+
+    .font-quicksand-300 {
+        font-family: "Quicksand", serif;
+        font-optical-sizing: auto;
+        font-weight: 300;
+        font-style: normal;
+    }
+
+    .font-quicksand-400 {
+        font-family: "Quicksand", serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .font-quicksand-500 {
+        font-family: "Quicksand", serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+
+    .font-quicksand-600 {
+        font-family: "Quicksand", serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+    }
+
+    .font-quicksand-700 {
+        font-family: "Quicksand", serif;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        font-style: normal;
+    }
+}

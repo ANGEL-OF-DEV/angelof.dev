@@ -1,0 +1,18 @@
+﻿@layer base {
+    ::-webkit-scrollbar {
+        width: calc(1em * var(--scrollbar-width-factor));
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--color-track);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-thumb);
+        border-radius: var(--roundness);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-hover);
+    }
+}

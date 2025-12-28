@@ -1,0 +1,166 @@
+@layer CV {
+    .jarek-kardas {
+        font-size: 2.5em;
+        font-weight: bold;
+        margin-left: 0.55em;
+        color: var(--color-slate);
+
+        @media print {
+            margin-left: 0;
+        }
+    }
+
+    .root {
+        padding-top: 0;
+        padding-bottom: 1em;
+        min-width: calc(1px * var(--layout-width-min));
+        max-width: calc(1px * var(--layout-width-min));
+        margin: auto;
+
+        @media print {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    li {
+        list-style-type: none;
+    }
+    li:before {
+        font-size: calc(1px * var(--size-minus-1));
+        display: inline-block;
+        content: "➜";
+        margin-left: -1.8em;
+        width: 1.8em;
+        color: var(--color-slate);
+    }
+
+    p[dates] {
+        font-size: calc(1px * var(--size-minus-3));
+        margin-top: 0.1em;
+        color: var(--color-slate);
+    }
+
+    .cv-card {
+        display: inline-block;
+        float: right;
+        position: relative;
+        height: 360px;
+        width: 210px;
+        padding: 0;
+        margin: 0;
+        margin-top: 0.25em;
+        margin-left: 2em;
+    }
+
+    .cv-card img {
+        position: absolute;
+        height: 360px;
+        top: 0;
+        right: 0.5em;
+    }
+
+    .cv-card img:nth-of-type(2) {
+        animation-delay: 0s;
+        animation-name: cv-card-animation;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+        animation-duration: 20s;
+    }
+
+    @keyframes cv-card-animation {
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0;
+        }
+        60% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+
+    .ancient {
+        p[dates] {
+            font-size: calc(1px * var(--size-minus-5));
+            color: var(--color-pencil);
+        }
+
+        h2 {
+            font-size: calc(1px * var(--size-baseline));
+            text-align: left;
+            padding: 0;
+            margin: 0.5em 0 0;
+            color: var(--color-pencil);
+            border-color: var(--color-slate);
+        }
+        p {
+            margin: 0.5em 0 0;
+            font-size: calc(1px * var(--size-minus-3));
+        }
+    }
+
+    [angelof] {
+        font-weight: bold;
+        color: var(--color-red);
+    }
+    [dev] {
+        font-weight: bold;
+        color: var(--color-slate);
+    }
+
+    [ja] {
+        margin-top: -9em;
+        font-size: calc(1px * var(--size-minus-6));
+        text-align: right;
+    }
+    [ro],
+    [slaw],
+    [kar],
+    [das] {
+        display: block;
+    }
+    [ro] {
+        font-weight: bold;
+    }
+    [ro]:before {
+        content: "07383";
+    }
+    [ro]:after {
+        content: "1363";
+    }
+
+    [slaw]:before {
+        color: var(--color-slate);
+        font-weight: bold;
+        content: "jar.of.slav";
+    }
+    [slaw]:after {
+        content: "@outlook.com";
+    }
+
+    [kar]:before {
+        content: "linkedin.com";
+    }
+    [kar]:after {
+        color: var(--color-slate);
+        font-weight: bold;
+        content: "jarekkardas";
+    }
+    [das]:before {
+        color: var(--color-HB);
+        font-weight: bold;
+        content: "Eligible to live";
+    }
+    [das]:after {
+        color: var(--color-HB);
+        font-weight: bold;
+        content: "and work in UK";
+    }
+}

@@ -1,0 +1,135 @@
+﻿@layer base {
+    body {
+        font-size: calc(1px * var(--size-prose-p));
+        font-family: var(--font-family-serif), serif;
+        font-weight: var(--weight-normal);
+        color: var(--color-prose);
+    }
+
+    a {
+        color: var(--color-prose-a);
+        font-weight: var(--weight-semi);
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: var(--color-red);
+    }
+
+    a[href^="#"] {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    p {
+        font-size: inherit;
+    }
+
+    b {
+        color: var(--color-prose-strong);
+        font-weight: var(--weight-prose-b);
+        font-style: normal;
+    }
+    i {
+        color: var(--color-prose-em);
+        font-weight: var(--weight-prose-i);
+        font-style: normal;
+    }
+
+    strong {
+        font-weight: var(--weight-prose-strong);
+        color: var(--color-prose-strong);
+        font-style: normal;
+    }
+    em {
+        color: var(--color-prose-em);
+        font-weight: var(--weight-prose-em);
+        font-style: normal;
+    }
+
+    /* NOTE: style every header individually */
+    h1 {
+        color: var(--color-prose-h1);
+        font-size: calc(1px * var(--size-prose-h1));
+    }
+    h2 {
+        color: var(--color-prose-h2);
+        font-size: calc(1px * var(--size-prose-h2));
+    }
+    h3 {
+        color: var(--color-prose-h3);
+        font-size: calc(1px * var(--size-prose-h3));
+    }
+    h4 {
+        color: var(--color-prose-h4);
+        font-size: calc(1px * var(--size-prose-h4));
+    }
+    h5 {
+        color: var(--color-prose-h5);
+        font-size: calc(1px * var(--size-prose-h5));
+    }
+    h6 {
+        color: var(--color-prose-h6);
+        font-size: calc(1px * var(--size-prose-h6));
+    }
+    /* NOTE: style all headers together */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        text-align: center;
+        padding-top: calc(1em * var(--padding-prose-header-factor));
+        padding-bottom: calc(1em * var(--padding-prose-header-factor));
+        margin-top: 0;
+        margin-bottom: 0;
+        border-style: var(--border-style);
+        border-left-width: 0;
+        border-right-width: 0;
+        border-top-width: calc(1em * var(--border-width-factor));
+        border-bottom-width: calc(1em * var(--border-width-factor));
+    }
+    *[join-next],
+    /*  <selected>:has(+ <previous sibling>)
+        Meaning: Select element type on the left if it has next sibling of type in the bracket.
+        See: https://developer.mozilla.org/en-US/docs/Web/CSS/Next-sibling_combinator#selecting_a_previous_sibling
+    */
+    h1:has(+ h2),
+    h2:has(+ h3),
+    h3:has(+ h4),
+    h4:has(+ h5),
+    h5:has(+ h6) {
+        padding-bottom: calc(1em * var(--padding-prose-hx-pair-factor));
+        border-bottom-width: 0;
+    }
+    *[join-prev],
+    h1 + h1,
+    h2 + h2,
+    h3 + h3,
+    h4 + h4,
+    h5 + h5,
+    h6 + h6,
+    h1 + h2,
+    h2 + h3,
+    h3 + h4,
+    h4 + h5,
+    h5 + h6 {
+        padding-top: calc(1em * var(--padding-prose-hx-pair-factor));
+        border-top-width: 0;
+    }
+
+    blockquote {
+        text-align: center;
+    }
+
+    hr {
+        display: block;
+        margin-block-start: 0.5em;
+        margin-block-end: 0.5em;
+        overflow: hidden;
+        border-color: var(--color-HB);
+        border-style: solid;
+        border-width: calc(1em * var(--border-width-factor));
+    }
+}

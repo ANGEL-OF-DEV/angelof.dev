@@ -1,0 +1,8 @@
+﻿@layer base {
+    body {
+        width: 100%;
+        background-color: var(--color-background);
+        margin: auto;
+        overflow-y: scroll;
+    }
+}
