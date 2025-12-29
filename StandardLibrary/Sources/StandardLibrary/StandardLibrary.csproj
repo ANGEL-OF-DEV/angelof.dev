@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
-    <RootNamespace>$(DefaultRootNamespace)</RootNamespace>
+    <RootNamespace>$(RepoRootNamespace)</RootNamespace>
     <AssemblyName>$(DefaultAssemblyName)</AssemblyName>
   </PropertyGroup>
 </Project>

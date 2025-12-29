@@ -1,7 +1,10 @@
 ﻿<Project Sdk="MSTest.Sdk">
   <PropertyGroup>
     <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
-    <RootNamespace>$(DefaultRootNamespace)</RootNamespace>
+    <RootNamespace>tests.$(RepoRootNamespace)</RootNamespace>
     <AssemblyName>$(DefaultAssemblyName)</AssemblyName>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sources\StandardLibrary\StandardLibrary.csproj"/>
+  </ItemGroup>
 </Project>
