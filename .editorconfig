@@ -13,7 +13,7 @@ file_header_template                  = {fileName} | LICENSED UNDER THE 𝗘𝗨
 #    - Make changes in diffs stand out
 #    - Balance the two opposing forces:
 #      - Minimize the size of diffs, so they are easier and quicker to read
-#      - Maximize the utility diffs, so they make imapact of changes clear
+#      - Maximize the utility diffs, so they make impact of changes clear
 #      As with any balancing act, it takes time to get right;
 #      Be ready to compromise, taking into account changing code contributors,
 #      frameworks, tools and other factors, not all directly linked to codebase;
@@ -21,7 +21,7 @@ file_header_template                  = {fileName} | LICENSED UNDER THE 𝗘𝗨
 #      It's always possible to loosen then them,
 #      It becomes really hard to make them more strict as more code is added;
 #    - Be stable, as much as possible; 
-#      (overly strict rules are britle, overly lose rules aren't rules)
+#      (overly strict rules are brittle, overly lose rules aren't rules)
 #    - Be removed when they bring no value;
 #
 #-------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ ij_any_align_group_field_declarations = true
 #
 #    Specific Rules
 #    - Indent style and sizes may need to be repeated
-#      for compatiblity with tools, even if unchanged from [*]
+#      for compatibility with tools, even if unchanged from [*]
 #
 #-------------------------------------------------------------------------------
 

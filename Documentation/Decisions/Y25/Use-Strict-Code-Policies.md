@@ -26,3 +26,7 @@ This behaviour is configured on MSBuild level:
   </PropertyGroup>
 </Project>
 ```
+
+## Use Spellcheck
+
+Spellchecking is cotnrolled by JetBrains Rider with a custom dictionary for this sulution is located in: `$/.idea/.idea.Solution/.idea/dictionaries/project.xml`.
