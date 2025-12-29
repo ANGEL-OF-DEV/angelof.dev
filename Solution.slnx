@@ -7,12 +7,14 @@
     <File Path="DecisionLog.md"/>
     <File Path="Directory.Build.props"/>
     <File Path="Directory.Packages.props"/>
+    <File Path="global.json"/>
     <File Path="ReadMe.md"/>
     <File Path="Solution.sln.DotSettings"/>
   </Folder>
-  <Folder Name="/StdLib/">
-    <File Path="StdLib/Directory.Build.props"/>
-    <File Path="StdLib/Directory.Packages.props"/>
-    <Project Path="StdLib/Sources/StandardLibrary/StandardLibrary.csproj"/>
+  <Folder Name="/Standard Library/">
+    <File Path="StandardLibrary/Directory.Build.props"/>
+    <File Path="StandardLibrary/Directory.Packages.props"/>
+    <Project Path="StandardLibrary/Sources/StandardLibrary/StandardLibrary.csproj"/>
+    <Project Path="StandardLibrary/Tests/StandardLibraryTests/StandardLibraryTests.csproj"/>
   </Folder>
 </Solution>
