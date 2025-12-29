@@ -46,6 +46,10 @@ braces_redundant                      = false
 
 # Alignment
 ij_any_align_group_field_declarations = true
+align_multiline_parameter             = true
+
+# Wrapping
+wrap_parameters_style                 = chop_if_long
 
 #-------------------------------------------------------------------------------
 #

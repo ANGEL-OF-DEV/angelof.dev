@@ -8,9 +8,12 @@ public sealed class StandardArgumentException : ArgumentOutOfRangeException
 {
   private const string ArgumentActualValueString = "ArgumentActualValue";
 
-  public StandardArgumentException(object? actualValue, string argumentName, string expectedValue, string callerMemberName,
-    string callerFilePath,
-    int callerLineNumber)
+  public StandardArgumentException(object? actualValue,
+                                   string argumentName,
+                                   string expectedValue,
+                                   string callerMemberName,
+                                   string callerFilePath,
+                                   int callerLineNumber)
     : base(argumentName, actualValue, "Argument value is not expected and invalid.")
   {
     ExpectedValue = expectedValue;
