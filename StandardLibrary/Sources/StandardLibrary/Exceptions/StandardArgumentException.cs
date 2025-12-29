@@ -6,8 +6,6 @@ namespace angelof.dev.Exceptions;
 
 public sealed class StandardArgumentException : ArgumentOutOfRangeException
 {
-  private const string ArgumentActualValueString = "ArgumentActualValue";
-
   public StandardArgumentException(object? actualValue,
                                    string argumentName,
                                    string expectedValue,
@@ -17,7 +15,6 @@ public sealed class StandardArgumentException : ArgumentOutOfRangeException
     : base(argumentName, actualValue, "Argument value is not expected and invalid.")
   {
     ExpectedValue = expectedValue;
-    Data.Add(ArgumentActualValueString, actualValue);
   }
 
   public string ExpectedValue { get; }
