@@ -1,0 +1,7 @@
+﻿<Project Sdk="MSTest.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
+    <RootNamespace>$(DefaultRootNamespace)</RootNamespace>
+    <AssemblyName>$(DefaultAssemblyName)</AssemblyName>
+  </PropertyGroup>
+</Project>

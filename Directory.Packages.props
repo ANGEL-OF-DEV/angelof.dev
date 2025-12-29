@@ -2,4 +2,15 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+
+  <ItemGroup Label="MSBuild SDKs (not intended to be referenced directly)">
+    <!--
+     MSBuild SDKs are defined here, but not intended to be referenced directly as package dependencies by individual projects.
+     Instead, they should be referenced in `$/global.json` and using `<Project Sdk=...>`.
+     They are defined here also for completeness and to provide more detailed error messages in case they cannot be resolved.
+     (global.json tooling alone does not always provide most helpful error details)
+    -->
+    <PackageVersion Include="MSTest.Sdk" Version="4.0.2"/>
+  </ItemGroup>
+
 </Project>

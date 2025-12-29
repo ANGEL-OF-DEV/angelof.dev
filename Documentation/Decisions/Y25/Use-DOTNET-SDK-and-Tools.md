@@ -28,6 +28,32 @@ and rollForward is disabled, as are the pre-release versions.
 This applies to **Continuous Integration and Release branches** (e.g. `main`).<br/>
 Other branches are free to play and run experiments as needed.
 
+## Include versions of MSBuild-SDKs in `global.json`
+
+`$/global.json` is the single source-of-truth for versions of MSBuild-SDKs used in solution. <br/>
+Version specified in this way:
+
+```json
+// $/global.json
+{
+  "msbuild-sdks": {
+    "MSTest.Sdk": "4.0.2"
+  }
+}
+```
+
+apply to all projects in solution, simplifying their definitions from:
+
+```msbuild
+<Project Sdk="MSTest.Sdk/4.0.2"></Project>
+```
+
+to:
+
+```msbuild
+<Project Sdk="MSTest.Sdk"></Project>
+```
+
 ## References:
 
 - [.NET SDK and Tools](https://learn.microsoft.com/dotnet/navigate/tools-diagnostics/)
