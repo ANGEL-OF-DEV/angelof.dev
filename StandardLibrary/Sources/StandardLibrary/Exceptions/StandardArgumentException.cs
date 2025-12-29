@@ -4,20 +4,31 @@ using angelof.dev.Internals;
 
 namespace angelof.dev.Exceptions;
 
+/// <summary> Represents an exception thrown when method argument is out of expected range or otherwise invalid. </summary>
 public sealed class StandardArgumentException : ArgumentOutOfRangeException
 {
+  /// <summary> Initializes a new instance. </summary>
   public StandardArgumentException(object? actualValue,
                                    string argumentName,
                                    string expectedValue,
-                                   string callerMemberName,
-                                   string callerFilePath,
-                                   int callerLineNumber)
+                                   string sourceMemberName,
+                                   string sourceFilePath,
+                                   int sourceLineNumber)
     : base(argumentName, actualValue, "Argument value is not expected and invalid.")
   {
     ExpectedValue = expectedValue;
+    SourceMemberName = sourceMemberName;
+    SourceFilePath = sourceFilePath;
+    SourceLineNumber = sourceLineNumber;
   }
 
   public string ExpectedValue { get; }
+
+  public string SourceMemberName { get; }
+
+  public string SourceFilePath { get; }
+
+  public int SourceLineNumber { get; }
 
   public ReadOnlySpan<char> StableMessage => GetStableMessageSpan();
 

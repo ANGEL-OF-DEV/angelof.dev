@@ -18,4 +18,9 @@
     <Project Path="StandardLibrary/Sources/StandardLibrary/StandardLibrary.csproj"/>
     <Project Path="StandardLibrary/Tests/StandardLibraryTests/StandardLibraryTests.csproj"/>
   </Folder>
+  <Folder Name="/Standard Library/Documentation/"/>
+  <Folder Name="/Standard Library/Documentation/Specification.Y25/">
+    <File Path="StandardLibrary/Documentation/Specification/Y25/Define-Standard-Exceptions.md"/>
+    <File Path="StandardLibrary/Documentation/Specification/Y25/Define-Standard-Expectations-API.md"/>
+  </Folder>
 </Solution>

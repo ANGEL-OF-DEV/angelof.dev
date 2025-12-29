@@ -9,6 +9,7 @@
 Introduce a small set of Standard Exceptions on top of an existing (large) set
 of all exceptions already available in .NET and libraries. The "standard" provided
 by new exceptions includes:
+
 - **Stable Message** that is not changed by localization or formatting of dynamic parameters.
   Stable Message might still include information static in given context (e.g. argument name but not argument value).
   This can provide an additional reference point for tracking recurring errors between different versions of application,

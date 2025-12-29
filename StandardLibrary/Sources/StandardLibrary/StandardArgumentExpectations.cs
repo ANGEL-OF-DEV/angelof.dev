@@ -5,6 +5,11 @@ using angelof.dev.Exceptions;
 
 namespace angelof.dev;
 
+/// <summary> Provides methods for validating run-time expectations about method arguments. </summary>
+/// <remarks>
+///   All methods throw <see cref="ArgumentOutOfRangeException" /> derived exception when their expectation check
+///   fails.
+/// </remarks>
 public static class StandardArgumentExpectations
 {
   /// <summary> Throws when argument is <b> null </b>. </summary>
