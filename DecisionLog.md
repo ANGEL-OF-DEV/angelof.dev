@@ -7,3 +7,4 @@ This decision log contains records of notable directives, decisions and recommen
 |----------|------------------|-------------------------------------------------------------------------------------------------------|
 | `tools`  | `recommendation` | [Use JetBrains Rider and Resharper](Documentation/Decisions/Y25/Use-JetBrains-Rider-and-Resharper.md) |
 | `build`  | `recommendation` | [Use MSBuild](Documentation/Decisions/Y25/Use-MSBuild.md)                                             |
+| `tools`  | `recommendation` | [Use .NET SDK and Tools](Documentation/Decisions/Y25/Use-DOTNET-SDK-and-Tools.md)                     |
