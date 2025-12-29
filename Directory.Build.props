@@ -15,7 +15,7 @@
   <PropertyGroup Label="Repository Layout">
     <WorktreeRootDirectory>$(MSBuildThisFileDirectory)</WorktreeRootDirectory>
     <UseArtifactsOutput>true</UseArtifactsOutput>
-    <ArtifactsPath>$(MSBuildThisFileDirectory)Artifacts/$(SolutionName)</ArtifactsPath>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)Artifacts</ArtifactsPath>
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild Fix - Unsupported repository extension">
