@@ -17,6 +17,11 @@ public static class StandardArgumentExpectations
                                            [CLN] int callerLineNumber = -1)
   {
     return argument ??
-           throw new StandardArgumentException("null", argumentName, "not null", callerMemberName, callerFilePath, callerLineNumber);
+           throw new StandardArgumentException("null",
+                                               argumentName,
+                                               "not null",
+                                               callerMemberName,
+                                               callerFilePath,
+                                               callerLineNumber);
   }
 }

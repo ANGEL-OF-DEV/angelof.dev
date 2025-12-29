@@ -14,7 +14,8 @@ public static class StandardArgumentExpectationsScenarios
     public void ExpectArgumentNotNull_Throws_When_Argument_Is_Null(object? argumentOne)
     {
       var e = Assert.Throws<StandardArgumentException>(() => ExpectArgumentNotNull(argumentOne));
-      Assert.AreEqual("Argument value is not expected and invalid. (Parameter 'argumentOne')", e.StableMessage.ToString());
+      Assert.AreEqual("Argument value is not expected and invalid. (Parameter 'argumentOne')",
+                      e.StableMessage.ToString());
       Assert.AreEqual("null", e.ActualValue);
       Assert.AreEqual("not null", e.ExpectedValue);
     }
