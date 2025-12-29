@@ -1,4 +1,6 @@
 <Project>
+  <Import Project="Directory.BuildServer.props"/>
+
   <PropertyGroup Label="Default Properties (not applied automatically)">
     <RepoRootNamespace>angelof.dev</RepoRootNamespace>
     <DefaultTargetFramework>net10.0</DefaultTargetFramework>
@@ -16,6 +18,19 @@
     <WorktreeRootDirectory>$(MSBuildThisFileDirectory)</WorktreeRootDirectory>
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <ArtifactsPath>$(MSBuildThisFileDirectory)Artifacts</ArtifactsPath>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Treat Warnings As Errors">
+    <!--
+      In DEBUG Warnings Are Warnings in order to be less distracting
+      and not interrupt development flow (unless already set).
+    -->
+    <WarningsAreErrors Condition=" '$(WarningsAreErrors)' == '' AND '$(Configuration)' != 'Debug' ">true</WarningsAreErrors>
+    <!-- In CI Warnings are always Errors. -->
+    <WarningsAreErrors Condition=" '$(CI)' != '' ">true</WarningsAreErrors>
+    <TreatWarningsAsErrors>$(WarningsAreErrors)</TreatWarningsAsErrors>
+    <MSBuildTreatWarningsAsErrors>$(WarningsAreErrors)</MSBuildTreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>$(WarningsAreErrors)</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild Fix - Unsupported repository extension">

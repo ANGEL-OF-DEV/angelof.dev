@@ -6,6 +6,7 @@
     <File Path="ChangeLog.md"/>
     <File Path="DecisionLog.md"/>
     <File Path="Directory.Build.props"/>
+    <File Path="Directory.BuildServer.props"/>
     <File Path="Directory.Packages.props"/>
     <File Path="global.json"/>
     <File Path="ReadMe.md"/>

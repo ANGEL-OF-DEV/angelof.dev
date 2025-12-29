@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup Label="Continuous Integration">
+    <!--
+      When either CI (GitHub) or TF_BUILD (Azure DevOps) are set,
+      assume this is Continuous Integration build.
+    -->
+    <CI Condition=" '$(CI)' != '' OR '$(TF_BUILD)' != '' ">true</CI>
+  </PropertyGroup>
+</Project>
