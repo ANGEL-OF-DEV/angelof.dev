@@ -1,0 +1,48 @@
+<Project>
+
+  <PropertyGroup Label="Use Strict Code Policies">
+    <!--
+      In DEBUG use less strict code policies in order to be less distracting
+      and not interrupt development flow (unless already set).
+
+      In CI Code Policies are always STRICT.
+    -->
+    <UseStrictCodePolicies Condition=" '$(UseStrictCodePolicies)' == '' AND '$(Configuration)' != 'Debug' ">true</UseStrictCodePolicies>
+    <UseStrictCodePolicies Condition=" '$(CI)' != '' ">true</UseStrictCodePolicies>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Treat Warnings As Errors">
+    <!--
+      In DEBUG Warnings Are Warnings in order to be less distracting
+      and not interrupt development flow (unless already set).
+
+      In CI Warnings are always Errors.
+    -->
+    <WarningsAreErrors Condition=" '$(WarningsAreErrors)' == '' AND '$(UseStrictCodePolicies)' != '' ">true</WarningsAreErrors>
+    <TreatWarningsAsErrors>$(WarningsAreErrors)</TreatWarningsAsErrors>
+    <MSBuildTreatWarningsAsErrors>$(WarningsAreErrors)</MSBuildTreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>$(WarningsAreErrors)</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Standard Policies (applied automatically if STRICT is enabled)"
+                 Condition=" '$(UseStrictCodePolicies)' == 'true' ">
+    <Nullable>enable</Nullable>
+    <AnalysisMode>All</AnalysisMode>
+    <WarningLevel>9999</WarningLevel>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <LangVersion>latestMajor</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <EnablePreviewFeatures>false</EnablePreviewFeatures>
+  </PropertyGroup>
+
+  <PropertyGroup Label="MSBuild Fix - Unsupported repository extension">
+    <!--
+    Can re-enable from dotnet:release/10.0.2
+    See: https://github.com/dotnet/sourcelink/pull/1505
+    -->
+    <SuppressImplicitGitSourceLink>true</SuppressImplicitGitSourceLink>
+  </PropertyGroup>
+</Project>

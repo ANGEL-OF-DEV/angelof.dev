@@ -1,0 +1,63 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup Label="Global Analyzer Packages"
+             Condition=" '$(ProjectSdk)' != 'MSBuild.Sdk.SqlProj' AND '$(UseStrictCodePolicies)' == 'true' ">
+    <GlobalPackageVersion Include="DotNetAnalyzers.DocumentationAnalyzers" Version="1.0.0-beta.59"/>
+    <GlobalPackageVersion Include="PolySharp" Version="1.15.0"/>
+    <GlobalPackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json"
+                     Link="stylecop.json"
+                     Visible="False"/>
+  </ItemGroup>
+
+  <ItemGroup Label="MSBuild SDKs (not intended to be referenced directly)">
+    <!--
+     MSBuild SDKs are defined here, but not intended to be referenced directly as package dependencies by individual projects.
+     Instead, they should be referenced in `$/global.json` and using `<Project Sdk=...>`.
+     They are defined here also for completeness and to provide more detailed error messages in case they cannot be resolved.
+     (global.json tooling alone does not always provide most helpful error details)
+    -->
+    <PackageVersion Include="MSTest.Sdk" Version="4.0.2"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageVersion Version="0.31.0" Include="LibGit2Sharp"/>
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2"/>
+    <PackageVersion Include="Microsoft.Build" Version="18.0.2"/>
+    <PackageVersion Include="Spectre.Console" Version="0.53.1"/>
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.53.1"/>
+    <PackageVersion Include="YamlDotNet" Version="12.0.2"/>
+  </ItemGroup>
+
+  <!--@formatter:off -->
+  <PropertyGroup><v10_0>10.0</v10_0></PropertyGroup>
+  <!--@formatter:on -->
+  <ItemGroup>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Caching.Abstractions"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Caching.Memory"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.DependencyModel"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.FileProviders.Abstractions"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.FileProviders.Physical"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.FileSystemGlobbing"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Http"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Hosting.Abstractions"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Logging"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Logging.Abstractions"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Logging.Configuration"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Logging.Console"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Logging.Debug"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Logging.TraceSource"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Telemetry"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Telemetry.Abstractions"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.ObjectPool"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.ObjectPool.DependencyInjection"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Options"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.Primitives"/>
+    <PackageVersion Version="$(v10_0)" Include="Microsoft.Extensions.TimeProvider.Testing"/>
+  </ItemGroup>
+
+</Project>

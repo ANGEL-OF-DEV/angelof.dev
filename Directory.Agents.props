@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup Label="Continuous Integration">
+    <!--
+      When either CI (GitHub) or TF_BUILD (Azure DevOps) or AGENT_BUILD set,
+      assume this is Continuous Integration build.
+    -->
+    <CI Condition=" '$(CI)' != '' OR '$(TF_BUILD)' != '' OR '$(AGENT_BUILD)' != '' ">true</CI>
+  </PropertyGroup>
+  <PropertyGroup Label="AGENT_BUILD Suppressions" Condition=" '$(AGENT_BUILD)' != '' ">
+    <NoWarn>$(NoWarn);MSTEST0001</NoWarn>
+  </PropertyGroup>
+</Project>

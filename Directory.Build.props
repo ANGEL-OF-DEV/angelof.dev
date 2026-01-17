@@ -1,0 +1,23 @@
+<Project>
+  <!-- "Directory.Agents.props" contains definitions
+        specific to AI and Build Agents. -->
+  <Import Project="Directory.Agents.props"/>
+  <!-- "Directory.Policies.props" contains definitions
+        of code policies enforced in this repository. -->
+  <Import Project="Directory.Policies.props"/>
+
+  <PropertyGroup Label="Default Properties (not automatically applied)">
+    <RepoRootNamespace>angelof.dev</RepoRootNamespace>
+    <DefaultTargetFramework>net10.0</DefaultTargetFramework>
+    <DefaultRootNamespace>$(RepoRootNamespace).$(MSBuildProjectName)</DefaultRootNamespace>
+    <DefaultAssemblyName>$(DefaultRootNamespace)</DefaultAssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Repository Layout">
+    <WorktreeRootDirectory>$(MSBuildThisFileDirectory)</WorktreeRootDirectory>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)Artifacts</ArtifactsPath>
+    <DefaultGitVersionBaseDirectory>$(MSBuildThisFileDirectory)</DefaultGitVersionBaseDirectory>
+  </PropertyGroup>
+
+</Project>

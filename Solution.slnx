@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/SolutionDirectory/">
+    <File Path=".editorconfig"/>
+    <File Path=".gitattributes"/>
+    <File Path=".gitignore"/>
+    <File Path="Directory.Agents.props"/>
+    <File Path="Directory.Build.props"/>
+    <File Path="Directory.Packages.props"/>
+    <File Path="Directory.Policies.props"/>
+    <File Path="favicon.ico"/>
+    <File Path="global.json"/>
+    <File Path="LICENSE"/>
+    <File Path="robots.txt"/>
+    <File Path="settings.json"/>
+    <File Path="Solution.sln.DotSettings"/>
+  </Folder>
+  <Project Path="Sources/ffrwd/ffrwd.csproj"/>
+</Solution>
