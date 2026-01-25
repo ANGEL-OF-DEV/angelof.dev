@@ -5,17 +5,25 @@ namespace Ur.Tool.Commands.Verify;
 
 public static class VerifyMdFrontmatterCommand
 {
-  public static Command Create()
+  public static Command Create(Option<string> urRootOpt)
   {
     var cmd = new Command("md-frontmatter", "Verify all *.ur.md files have required YAML frontmatter keys.");
 
-    var allOpt = new Option<bool>("--all", () => true, "Scan all *.ur.md files in repo (default).");
-
-    cmd.AddOption(allOpt);
-
-    cmd.SetHandler((bool all) =>
+    var allOpt = new Option<bool>("--all")
     {
-      var repoRoot = RepoFiles.GetRepoRootOrCurrent();
+      Description = "Scan all *.ur.md files in repo (default).",
+      DefaultValueFactory = _ => true
+    };
+
+    cmd.Options.Add(allOpt);
+    cmd.Options.Add(urRootOpt);
+
+    cmd.SetAction(parseResult =>
+    {
+      var all = parseResult.GetValue(allOpt);
+      _ = all;
+      var urRoot = parseResult.GetValue(urRootOpt);
+      var repoRoot = UrRootResolver.Resolve(urRoot);
       var result = VerifyMdFrontmatterLogic.Run(repoRoot);
 
       if (!result.Ok)
@@ -28,7 +36,8 @@ public static class VerifyMdFrontmatterCommand
       }
 
       Console.WriteLine("OK: md-frontmatter");
-    }, allOpt);
+      Environment.ExitCode = 0;
+    });
 
     return cmd;
   }

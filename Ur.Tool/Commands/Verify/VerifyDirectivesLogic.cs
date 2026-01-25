@@ -6,9 +6,10 @@ public static class VerifyDirectivesLogic
 {
   public static VerifyResult Run(string repoRoot)
   {
+    var urRoot = UrRootResolver.Normalize(repoRoot);
     var errors = new List<string>();
 
-    var directivesDir = Path.Combine(repoRoot, "[ur]", "directives");
+    var directivesDir = Path.Combine(urRoot, "directives");
     if (!Directory.Exists(directivesDir))
       return new VerifyResult(false, new[] { $"Missing directives directory: {directivesDir}" });
 

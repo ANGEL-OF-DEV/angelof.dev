@@ -10,13 +10,24 @@ public static class CliEntrypoint
 
     var root = new RootCommand("promptpack-verify (draft-0)");
 
-    var packRootOpt = new Option<string>("--pack-root", () => ".", "Pack root directory.");
-    var cmd = new Command("verify-pack", "Verify prompt pack structure and prompt headers.");
-    cmd.AddOption(packRootOpt);
-
-    cmd.SetHandler((string packRoot) =>
+    var promptsRootOpt = new Option<string>("--prompts-root")
     {
-      var result = VerifyPackLogic.Run(packRoot);
+      Description = "Prompts root directory (defaults to sibling [monocoque.prompts])."
+    };
+    var packRootOpt = new Option<string>("--pack-root")
+    {
+      Description = "Legacy alias for --prompts-root."
+    };
+    var cmd = new Command("verify-pack", "Verify prompt pack structure and prompt headers.");
+    cmd.Options.Add(promptsRootOpt);
+    cmd.Options.Add(packRootOpt);
+
+    cmd.SetAction(parseResult =>
+    {
+      var promptsRoot = parseResult.GetValue(promptsRootOpt);
+      var packRoot = parseResult.GetValue(packRootOpt);
+      var resolvedRoot = PromptsRootResolver.Resolve(promptsRoot, packRoot);
+      var result = VerifyPackLogic.Run(resolvedRoot);
 
       if (!result.Ok)
       {
@@ -28,10 +39,12 @@ public static class CliEntrypoint
       }
 
       Console.WriteLine("OK: verify-pack");
-    }, packRootOpt);
+      Environment.ExitCode = 0;
+    });
 
-    root.AddCommand(cmd);
+    root.Subcommands.Add(cmd);
 
-    return await root.InvokeAsync(trimmed);
+    var parseResult = root.Parse(trimmed);
+    return await parseResult.InvokeAsync(new InvocationConfiguration());
   }
 }

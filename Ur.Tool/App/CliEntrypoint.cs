@@ -12,8 +12,9 @@ public static class CliEntrypoint
 
     var root = new RootCommand("urtool (draft-0) - local-first governance verifier");
 
-    root.AddCommand(VerifyCommandFactory.Create());
+    root.Subcommands.Add(VerifyCommandFactory.Create());
 
-    return await root.InvokeAsync(trimmed);
+    var parseResult = root.Parse(trimmed);
+    return await parseResult.InvokeAsync(new InvocationConfiguration());
   }
 }

@@ -8,10 +8,15 @@ public static class VerifyCommandFactory
   {
     var verify = new Command("verify", "Verification commands");
 
-    verify.AddCommand(VerifyMdFrontmatterCommand.Create());
-    verify.AddCommand(VerifyRegistryCommand.Create());
-    verify.AddCommand(VerifyDirectivesCommand.Create());
-    verify.AddCommand(VerifyAllCommand.Create());
+    var urRootOpt = new Option<string>("--ur-root")
+    {
+      Description = "UR root directory (defaults to sibling [monocoque.ur])."
+    };
+
+    verify.Subcommands.Add(VerifyMdFrontmatterCommand.Create(urRootOpt));
+    verify.Subcommands.Add(VerifyRegistryCommand.Create(urRootOpt));
+    verify.Subcommands.Add(VerifyDirectivesCommand.Create(urRootOpt));
+    verify.Subcommands.Add(VerifyAllCommand.Create(urRootOpt));
 
     return verify;
   }

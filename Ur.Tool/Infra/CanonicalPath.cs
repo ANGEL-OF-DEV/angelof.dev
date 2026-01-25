@@ -11,7 +11,7 @@ public static class CanonicalPath
       throw new ArgumentException($"Expected canonical path starting with '{CanonicalUrPrefix}': {canonicalPath}");
 
     var relative = canonicalPath.Substring(CanonicalUrPrefix.Length);
-    return PhysicalUrPrefix + relative.Replace('\', '/');
+    return PhysicalUrPrefix + relative.Replace('\\', '/');
   }
 
   public static bool LooksPhysical(string path) => path.Contains("[ur]", StringComparison.Ordinal);

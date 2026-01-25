@@ -5,13 +5,16 @@ namespace Ur.Tool.Commands.Verify;
 
 public static class VerifyRegistryCommand
 {
-  public static Command Create()
+  public static Command Create(Option<string> urRootOpt)
   {
     var cmd = new Command("registry", "Verify registry uses canonical ur/... paths and contains no [ur]/ physical paths.");
 
-    cmd.SetHandler(() =>
+    cmd.Options.Add(urRootOpt);
+
+    cmd.SetAction(parseResult =>
     {
-      var repoRoot = RepoFiles.GetRepoRootOrCurrent();
+      var urRoot = parseResult.GetValue(urRootOpt);
+      var repoRoot = UrRootResolver.Resolve(urRoot);
       var result = VerifyRegistryLogic.Run(repoRoot);
 
       if (!result.Ok)
@@ -24,6 +27,7 @@ public static class VerifyRegistryCommand
       }
 
       Console.WriteLine("OK: registry");
+      Environment.ExitCode = 0;
     });
 
     return cmd;

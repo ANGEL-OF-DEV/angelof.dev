@@ -10,7 +10,7 @@ public static class RepoFiles
 
   public static string GetRepoRootOrCurrent()
   {
-    // No git dependency: treat current directory as repo root for draft-0.
-    return Directory.GetCurrentDirectory();
+    // No git dependency: use explicit/sibling UR root when available.
+    return UrRootResolver.Resolve(null);
   }
 }

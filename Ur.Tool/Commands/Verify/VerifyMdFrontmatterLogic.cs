@@ -22,7 +22,8 @@ public static class VerifyMdFrontmatterLogic
   public static VerifyResult Run(string repoRoot)
   {
     var errors = new List<string>();
-    var files = RepoFiles.EnumerateFiles(repoRoot, "*.ur.md", recursive: true);
+    var urRoot = UrRootResolver.Normalize(repoRoot);
+    var files = RepoFiles.EnumerateFiles(urRoot, "*.ur.md", recursive: true);
 
     foreach (var file in files)
     {

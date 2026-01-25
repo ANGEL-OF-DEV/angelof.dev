@@ -5,13 +5,16 @@ namespace Ur.Tool.Commands.Verify;
 
 public static class VerifyDirectivesCommand
 {
-  public static Command Create()
+  public static Command Create(Option<string> urRootOpt)
   {
     var cmd = new Command("directives", "Verify directive ID semantics (founding IDs and consecutive positive IDs).");
 
-    cmd.SetHandler(() =>
+    cmd.Options.Add(urRootOpt);
+
+    cmd.SetAction(parseResult =>
     {
-      var repoRoot = RepoFiles.GetRepoRootOrCurrent();
+      var urRoot = parseResult.GetValue(urRootOpt);
+      var repoRoot = UrRootResolver.Resolve(urRoot);
       var result = VerifyDirectivesLogic.Run(repoRoot);
 
       if (!result.Ok)
@@ -24,6 +27,7 @@ public static class VerifyDirectivesCommand
       }
 
       Console.WriteLine("OK: directives");
+      Environment.ExitCode = 0;
     });
 
     return cmd;

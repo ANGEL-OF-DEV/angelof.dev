@@ -5,12 +5,15 @@ namespace Ur.Tool.Commands.Verify;
 
 public static class VerifyAllCommand
 {
-  public static Command Create()
+  public static Command Create(Option<string> urRootOpt)
   {
     var cmd = new Command("all", "Run all verifications (draft-0).");
-    cmd.SetHandler(() =>
+    cmd.Options.Add(urRootOpt);
+
+    cmd.SetAction(parseResult =>
     {
-      var repoRoot = RepoFiles.GetRepoRootOrCurrent();
+      var urRoot = parseResult.GetValue(urRootOpt);
+      var repoRoot = UrRootResolver.Resolve(urRoot);
       var failures = new List<string>();
 
       var md = VerifyMdFrontmatterLogic.Run(repoRoot);
@@ -32,6 +35,7 @@ public static class VerifyAllCommand
       }
 
       Console.WriteLine("OK: verify all");
+      Environment.ExitCode = 0;
     });
 
     return cmd;

@@ -1,12 +1,15 @@
+using Ur.Tool.Infra;
+
 namespace Ur.Tool.Commands.Verify;
 
 public static class VerifyRegistryLogic
 {
   public static VerifyResult Run(string repoRoot)
   {
+    var urRoot = UrRootResolver.Normalize(repoRoot);
     var errors = new List<string>();
 
-    var registryPath = Path.Combine(repoRoot, "[ur]", "registry", "v0", "registry.yaml");
+    var registryPath = Path.Combine(urRoot, "registry", "v0", "registry.yaml");
     if (!File.Exists(registryPath))
       return new VerifyResult(false, new[] { $"Missing registry file: {registryPath}" });
 
