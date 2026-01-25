@@ -11,11 +11,11 @@ public static class VerifyPackLogic
 
     var required = new[]
     {
-      Path.Combine(root, "[prompts]", "registry", "v0", "prompt-registry.yaml"),
-      Path.Combine(root, "[prompts]", "prompts", "angelofdev-copilots-general-v0.txt"),
-      Path.Combine(root, "[prompts]", "prompts", "angelofdev-copilots-orchestrated-turn-workflow-v0.txt"),
-      Path.Combine(root, "[prompts]", "logs", "CHANGELOG.txt"),
-      Path.Combine(root, "[prompts]", "logs", "DECISIONLOG.txt")
+      Path.Combine(root, "registry", "v0", "prompt-registry.yaml"),
+      Path.Combine(root, "prompts", "angelofdev-copilots-general-v0.txt"),
+      Path.Combine(root, "prompts", "angelofdev-copilots-orchestrated-turn-workflow-v0.txt"),
+      Path.Combine(root, "logs", "CHANGELOG.txt"),
+      Path.Combine(root, "logs", "DECISIONLOG.txt")
     };
 
     foreach (var p in required)
