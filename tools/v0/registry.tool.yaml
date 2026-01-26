@@ -1,0 +1,12 @@
+schema: tool.v0
+id: registry.tool
+canonical_path: tool://registry.tool
+project_path_rel: "[monocoque.tools]/Registry.Tool/Registry.Tool.csproj"
+kind: dotnet
+commands:
+- name: bootstrap-tools-v0
+  example: dotnet run --project [monocoque.tools]/Registry.Tool/Registry.Tool.csproj -c Release -- --app registry bootstrap-tools-v0 --repo-root .
+- name: verify-tools-v0
+  example: dotnet run --project [monocoque.tools]/Registry.Tool/Registry.Tool.csproj -c Release -- --app registry verify-tools-v0 --repo-root .
+placeholders:
+- 'MONOCOQUE_PLACEHOLDER(V0): metrics emission contract'

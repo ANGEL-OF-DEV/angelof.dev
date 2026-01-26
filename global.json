@@ -1,14 +1,14 @@
 {
-  "sdk": {
-    "version": "10.0.101",
-    "rollForward": "latestPatch",
-    "allowPrerelease": false
+  \ sdk\: {
+    \version\: \10.0.101\,
+    \rollForward\: \latestPatch\,
+    \allowPrerelease\: false
   },
-  "msbuild-sdks": {
-    "MSTest.Sdk": "4.0.2",
-    "Microsoft.VisualStudio.JavaScript.Sdk": "1.0.4338480"
+  \msbuild-sdks\: {
+    \MSTest.Sdk\: \4.0.2\,
+    \Microsoft.VisualStudio.JavaScript.Sdk\: \1.0.4338480\
   },
-  "test": {
-    "runner": "Microsoft.Testing.Platform"
+  \test\: {
+    \runner\: \Microsoft.Testing.Platform\
   }
 }

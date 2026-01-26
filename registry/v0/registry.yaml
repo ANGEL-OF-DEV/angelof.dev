@@ -1,0 +1,9 @@
+schema: tool_registry.v0
+canonical_path: tool-registry://tools.v0
+tools:
+- id: registry.tool
+  doc_path_rel: "[monocoque.tools]/tools/v0/registry.tool.yaml"
+  status: active
+  notes: self-hosted
+placeholders:
+- 'MONOCOQUE_PLACEHOLDER(V0): metrics emission contract'
