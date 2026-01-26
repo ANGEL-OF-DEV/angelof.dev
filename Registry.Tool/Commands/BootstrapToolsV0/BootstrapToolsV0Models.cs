@@ -1,83 +1,142 @@
 // BootstrapToolsV0Models.cs | LICENSED UNDER THE 𝗘𝗨𝗣𝗟 [eupl.eu/1.2/en]
-using System.Text.Json.Serialization;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using Registry.Tool.App.Logging;
 
 namespace Registry.Tool.Commands.BootstrapToolsV0;
 
-public sealed record OperationResult(bool Ok, IReadOnlyList<string> Errors)
+public sealed record BootstrapOptions(
+  string? RepoRoot,
+  bool Force,
+  LogOptions LogOptions);
+
+public sealed record CommandResult(
+  bool Ok,
+  IReadOnlyList<string> Errors,
+  IReadOnlyList<string> Warnings,
+  IReadOnlyList<string> Decisions,
+  IReadOnlyList<string> Edits)
 {
-  public static OperationResult Success() => new(true, Array.Empty<string>());
-  public static OperationResult Failure(params string[] errors) => new(false, errors);
-  public static OperationResult Failure(List<string> errors) => new(false, errors);
+  public static CommandResult Success(
+    IReadOnlyList<string> warnings,
+    IReadOnlyList<string> decisions,
+    IReadOnlyList<string> edits)
+    => new(true, Array.Empty<string>(), warnings, decisions, edits);
+
+  public static CommandResult Failure(
+    IReadOnlyList<string> errors,
+    IReadOnlyList<string> warnings,
+    IReadOnlyList<string> decisions,
+    IReadOnlyList<string> edits)
+    => new(false, errors, warnings, decisions, edits);
 }
 
-public sealed record ToolCommandDoc(
-  [property: JsonPropertyOrder(1)]
-  [property: JsonPropertyName("name")]
-  string Name,
-  [property: JsonPropertyOrder(2)]
-  [property: JsonPropertyName("example")]
-  string Example
+public sealed class ToolCommandDoc
+{
+  [YamlMember(Alias = "name", Order = 1)]
+  public string Name { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "example", Order = 2)]
+  public string Example { get; set; } = string.Empty;
+}
+
+public sealed class ToolDoc
+{
+  [YamlMember(Alias = "schema", Order = 1)]
+  public string Schema { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "id", Order = 2)]
+  public string Id { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "canonical_path", Order = 3)]
+  public string CanonicalPath { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "project_path_rel", Order = 4, ScalarStyle = ScalarStyle.DoubleQuoted)]
+  public string ProjectPathRel { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "kind", Order = 5)]
+  public string Kind { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "commands", Order = 6)]
+  public List<ToolCommandDoc> Commands { get; set; } = new();
+
+  [YamlMember(Alias = "generated_at_utc", Order = 7, DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
+  public string? GeneratedAtUtc { get; set; }
+
+  [YamlMember(Alias = "placeholders", Order = 8)]
+  public List<string> Placeholders { get; set; } = new();
+}
+
+public sealed class ToolRegistryEntry
+{
+  [YamlMember(Alias = "id", Order = 1)]
+  public string Id { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "doc_path_rel", Order = 2, ScalarStyle = ScalarStyle.DoubleQuoted)]
+  public string DocPathRel { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "status", Order = 3)]
+  public string Status { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "notes", Order = 4, DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
+  public string? Notes { get; set; }
+}
+
+public sealed class ToolRegistryDoc
+{
+  [YamlMember(Alias = "schema", Order = 1)]
+  public string Schema { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "canonical_path", Order = 2)]
+  public string CanonicalPath { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "tools", Order = 3)]
+  public List<ToolRegistryEntry> Tools { get; set; } = new();
+
+  [YamlMember(Alias = "generated_at_utc", Order = 4, DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
+  public string? GeneratedAtUtc { get; set; }
+
+  [YamlMember(Alias = "placeholders", Order = 5)]
+  public List<string> Placeholders { get; set; } = new();
+}
+
+public sealed class TemplatePack
+{
+  [YamlMember(Alias = "schema", Order = 1)]
+  public string Schema { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "id", Order = 2)]
+  public string Id { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "title", Order = 3)]
+  public string Title { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "templates", Order = 4)]
+  public List<TemplateEntry> Templates { get; set; } = new();
+
+  [YamlMember(Alias = "placeholders", Order = 5, DefaultValuesHandling = DefaultValuesHandling.OmitNull)]
+  public List<string>? Placeholders { get; set; }
+}
+
+public sealed class TemplateEntry
+{
+  [YamlMember(Alias = "id", Order = 1)]
+  public string Id { get; set; } = string.Empty;
+
+  [YamlMember(Alias = "path", Order = 2)]
+  public string PathRel { get; set; } = string.Empty;
+}
+
+public sealed record UrRegistryDoc(
+  [property: YamlMember(Alias = "entries", Order = 1)]
+  List<UrRegistryEntry> Entries
 );
 
-public sealed record ToolDoc(
-  [property: JsonPropertyOrder(1)]
-  [property: JsonPropertyName("schema")]
-  string Schema,
-  [property: JsonPropertyOrder(2)]
-  [property: JsonPropertyName("id")]
+public sealed record UrRegistryEntry(
+  [property: YamlMember(Alias = "id", Order = 1)]
   string Id,
-  [property: JsonPropertyOrder(3)]
-  [property: JsonPropertyName("canonical_path")]
-  string CanonicalPath,
-  [property: JsonPropertyOrder(4)]
-  [property: JsonPropertyName("project_path_rel")]
-  string ProjectPathRel,
-  [property: JsonPropertyOrder(5)]
-  [property: JsonPropertyName("kind")]
+  [property: YamlMember(Alias = "kind", Order = 2)]
   string Kind,
-  [property: JsonPropertyOrder(6)]
-  [property: JsonPropertyName("commands")]
-  IReadOnlyList<ToolCommandDoc> Commands,
-  [property: JsonPropertyOrder(7)]
-  [property: JsonPropertyName("generated_at_utc")]
-  [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  string? GeneratedAtUtc,
-  [property: JsonPropertyOrder(8)]
-  [property: JsonPropertyName("placeholders")]
-  IReadOnlyList<string> Placeholders
-);
-
-public sealed record ToolRegistryEntry(
-  [property: JsonPropertyOrder(1)]
-  [property: JsonPropertyName("id")]
-  string Id,
-  [property: JsonPropertyOrder(2)]
-  [property: JsonPropertyName("doc_path_rel")]
-  string DocPathRel,
-  [property: JsonPropertyOrder(3)]
-  [property: JsonPropertyName("status")]
-  string Status,
-  [property: JsonPropertyOrder(4)]
-  [property: JsonPropertyName("notes")]
-  [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  string? Notes
-);
-
-public sealed record ToolRegistryDoc(
-  [property: JsonPropertyOrder(1)]
-  [property: JsonPropertyName("schema")]
-  string Schema,
-  [property: JsonPropertyOrder(2)]
-  [property: JsonPropertyName("canonical_path")]
-  string CanonicalPath,
-  [property: JsonPropertyOrder(3)]
-  [property: JsonPropertyName("tools")]
-  IReadOnlyList<ToolRegistryEntry> Tools,
-  [property: JsonPropertyOrder(4)]
-  [property: JsonPropertyName("generated_at_utc")]
-  [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  string? GeneratedAtUtc,
-  [property: JsonPropertyOrder(5)]
-  [property: JsonPropertyName("placeholders")]
-  IReadOnlyList<string> Placeholders
+  [property: YamlMember(Alias = "path", Order = 3)]
+  string Path
 );

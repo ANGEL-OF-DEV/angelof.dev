@@ -1,209 +1,154 @@
 // VerifyToolsV0Logic.cs | LICENSED UNDER THE 𝗘𝗨𝗣𝗟 [eupl.eu/1.2/en]
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Linq;
+using Json.Schema;
+using Registry.Tool.App.Logging;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Registry.Tool.Commands.VerifyToolsV0;
 
 public static class VerifyToolsV0Logic
 {
-  // MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract
-  // MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs
   private const string RegistryRel = "[monocoque.tools]/registry/v0/registry.yaml";
   private const string ToolSchemaRel = "[monocoque.tools]/schemas/v0/tool.schema.json";
   private const string ToolRegistrySchemaRel = "[monocoque.tools]/schemas/v0/tool_registry.schema.json";
+  private const string AuthorityMapRel = "[monocoque.ur]/registry/v0/authority-map.v0.yaml";
+  private const string AuthorityMapSchemaRel = "[monocoque.ur]/schemas/v0/authority_map.schema.json";
+  private const string AuthorityMapPointerRel = "AUTHORITY-MAP.v0.md";
+  private const string CommandsRootRel = "[monocoque.tools]/Registry.Tool/Commands";
 
   private const string ToolSchemaId = "tool.v0";
   private const string ToolRegistrySchemaId = "tool_registry.v0";
 
-  private static readonly IReadOnlyList<string> Placeholders = new[]
-  {
-    "MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract",
-    "MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs"
-  };
-
-  public static OperationResult Run(string? repoRootArg)
+  public static CommandResult Run(VerifyOptions options)
   {
     var errors = new List<string>();
-    var repoRoot = ResolveRepoRoot(repoRootArg, errors);
+    var warnings = new List<string>();
+    var decisions = new List<string>();
+    var edits = new List<string>();
 
-    var toolSchemaPath = ResolvePath(repoRoot, ToolSchemaRel);
-    var toolRegistrySchemaPath = ResolvePath(repoRoot, ToolRegistrySchemaRel);
-    var registryPath = ResolvePath(repoRoot, RegistryRel);
+    var repoRoot = RepoPath.ResolveRepoRoot(options.RepoRoot, errors);
+    if (errors.Count > 0)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
 
-    EnsureExists(toolSchemaPath, "tool.schema.json", errors);
-    EnsureExists(toolRegistrySchemaPath, "tool_registry.schema.json", errors);
-    EnsureExists(registryPath, "registry.yaml", errors);
+    using var logger = LogWriter.Create(repoRoot, options.LogOptions, errors);
+    if (errors.Count > 0)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+
+    ValidateAuthorityMap(repoRoot, errors);
+
+    var toolSchemaPath = RepoPath.ResolvePath(repoRoot, ToolSchemaRel);
+    var toolRegistrySchemaPath = RepoPath.ResolvePath(repoRoot, ToolRegistrySchemaRel);
+    var registryPath = RepoPath.ResolvePath(repoRoot, RegistryRel);
+
+    EnsureExists(toolSchemaPath, ToolSchemaRel, errors);
+    EnsureExists(toolRegistrySchemaPath, ToolRegistrySchemaRel, errors);
+    EnsureExists(registryPath, RegistryRel, errors);
 
     if (errors.Count > 0)
-      return OperationResult.Failure(errors);
-
-    if (!ValidateJsonFile(toolSchemaPath, "tool.schema.json", errors))
-      return OperationResult.Failure(errors);
-
-    if (!ValidateJsonFile(toolRegistrySchemaPath, "tool_registry.schema.json", errors))
-      return OperationResult.Failure(errors);
-
-    var registry = ParseRegistry(registryPath, errors);
-    if (registry is null)
-      return OperationResult.Failure(errors);
-
-    ValidateRegistry(registry, errors);
-    if (errors.Count > 0)
-      return OperationResult.Failure(errors);
-
-    foreach (var tool in registry.Tools)
     {
-      if (!IsRepoRelativePath(tool.DocPathRel))
+      Log(logger, "registry verify-tools-v0", RepoPath.NormalizeRepoRootDisplay(options.RepoRoot), decisions, edits, warnings, errors);
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+    }
+
+    var toolSchema = LoadSchema(toolSchemaPath, ToolSchemaRel, errors);
+    var toolRegistrySchema = LoadSchema(toolRegistrySchemaPath, ToolRegistrySchemaRel, errors);
+
+    if (errors.Count > 0 || toolSchema is null || toolRegistrySchema is null)
+    {
+      Log(logger, "registry verify-tools-v0", RepoPath.NormalizeRepoRootDisplay(options.RepoRoot), decisions, edits, warnings, errors);
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+    }
+
+    var registryYamlText = File.ReadAllText(registryPath);
+    var registryDoc = DeserializeYaml<ToolRegistryDoc>(registryYamlText, RegistryRel, errors);
+    var registryNode = ParseYamlAsJsonNode(registryYamlText, RegistryRel, errors);
+
+    if (registryDoc is null || registryNode is null)
+    {
+      Log(logger, "registry verify-tools-v0", options.RepoRoot ?? ".", decisions, edits, warnings, errors);
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+    }
+
+    ValidateSchema(toolRegistrySchema, registryNode, RegistryRel, errors);
+    ValidateRegistry(registryDoc, errors);
+
+    foreach (var tool in registryDoc.Tools ?? new List<ToolRegistryEntry>())
+    {
+      if (!RepoPath.IsRepoRelative(tool.DocPathRel))
       {
         errors.Add($"tool doc path must be repo-relative: {tool.DocPathRel}");
         continue;
       }
 
-      var docPath = ResolvePath(repoRoot, tool.DocPathRel);
+      var docPath = RepoPath.ResolvePath(repoRoot, tool.DocPathRel);
       if (!File.Exists(docPath))
       {
         errors.Add($"missing tool doc: {tool.DocPathRel}");
         continue;
       }
 
-      var doc = ParseToolDoc(docPath, errors);
-      if (doc is null)
+      var docText = File.ReadAllText(docPath);
+      var doc = DeserializeYaml<ToolDoc>(docText, tool.DocPathRel, errors);
+      var docNode = ParseYamlAsJsonNode(docText, tool.DocPathRel, errors);
+
+      if (doc is null || docNode is null)
         continue;
 
+      ValidateSchema(toolSchema, docNode, tool.DocPathRel, errors);
       ValidateToolDoc(doc, tool, errors);
     }
 
-    return errors.Count == 0 ? OperationResult.Success() : OperationResult.Failure(errors);
+    ValidateCommandDirectories(repoRoot, errors);
+
+    Log(logger, "registry verify-tools-v0", RepoPath.NormalizeRepoRootDisplay(options.RepoRoot), decisions, edits, warnings, errors);
+
+    return errors.Count == 0
+      ? CommandResult.Success(warnings, decisions, edits)
+      : CommandResult.Failure(errors, warnings, decisions, edits);
   }
 
-  private static string ResolveRepoRoot(string? repoRootArg, List<string> errors)
+  private static void ValidateAuthorityMap(string repoRoot, List<string> errors)
   {
-    var resolved = string.IsNullOrWhiteSpace(repoRootArg) ? "." : repoRootArg;
-    var full = Path.GetFullPath(resolved);
-    if (!Directory.Exists(full))
-      errors.Add($"repo-root not found: {repoRootArg}");
+    var pointerPath = RepoPath.ResolvePath(repoRoot, AuthorityMapPointerRel);
+    if (!File.Exists(pointerPath))
+    {
+      errors.Add($"missing {AuthorityMapPointerRel}");
+      return;
+    }
 
-    return full;
+    var pointerText = File.ReadAllText(pointerPath);
+    if (!pointerText.Contains(AuthorityMapRel, StringComparison.Ordinal))
+      errors.Add($"{AuthorityMapPointerRel} must reference {AuthorityMapRel}");
+
+    var mapPath = RepoPath.ResolvePath(repoRoot, AuthorityMapRel);
+    if (!File.Exists(mapPath))
+    {
+      errors.Add($"missing authority map: {AuthorityMapRel}");
+      return;
+    }
+
+    var mapText = File.ReadAllText(mapPath);
+    var mapNode = ParseYamlAsJsonNode(mapText, AuthorityMapRel, errors);
+
+    var schemaPath = RepoPath.ResolvePath(repoRoot, AuthorityMapSchemaRel);
+    if (!File.Exists(schemaPath))
+    {
+      errors.Add($"missing authority map schema: {AuthorityMapSchemaRel}");
+      return;
+    }
+
+    var schema = LoadSchema(schemaPath, AuthorityMapSchemaRel, errors);
+    if (schema is null || mapNode is null)
+      return;
+
+    ValidateSchema(schema, mapNode, AuthorityMapRel, errors);
   }
 
-  private static void EnsureExists(string path, string label, List<string> errors)
-  {
-    if (!File.Exists(path))
-      errors.Add($"missing {label}: {path}");
-  }
-
-  private static bool ValidateJsonFile(string path, string label, List<string> errors)
-  {
-    try
-    {
-      using var _ = JsonDocument.Parse(File.ReadAllText(path));
-      return true;
-    }
-    catch (JsonException ex)
-    {
-      errors.Add($"invalid JSON in {label}: {ex.Message}");
-      return false;
-    }
-  }
-
-  private static RegistryParsed? ParseRegistry(string registryPath, List<string> errors)
-  {
-    try
-    {
-      using var doc = JsonDocument.Parse(File.ReadAllText(registryPath));
-      var root = doc.RootElement;
-      if (root.ValueKind != JsonValueKind.Object)
-      {
-        errors.Add("registry.yaml must be a JSON object");
-        return null;
-      }
-
-      var schema = GetRequiredString(root, "schema", "registry.yaml", errors);
-      var canonical = GetRequiredString(root, "canonical_path", "registry.yaml", errors);
-      var placeholders = GetRequiredStringArray(root, "placeholders", "registry.yaml", errors);
-      var tools = GetRequiredArray(root, "tools", "registry.yaml", errors);
-
-      if (schema is null || canonical is null || placeholders is null || tools is null)
-        return null;
-
-      var entries = new List<ToolRegistryEntryParsed>();
-      foreach (var item in tools.Value.EnumerateArray())
-      {
-        if (item.ValueKind != JsonValueKind.Object)
-        {
-          errors.Add("registry.yaml tools entries must be objects");
-          continue;
-        }
-
-        var id = GetRequiredString(item, "id", "registry.yaml", errors);
-        var docPath = GetRequiredString(item, "doc_path_rel", "registry.yaml", errors);
-        var status = GetRequiredString(item, "status", "registry.yaml", errors);
-        var notes = GetOptionalString(item, "notes");
-
-        if (id is null || docPath is null || status is null)
-          continue;
-
-        entries.Add(new ToolRegistryEntryParsed(id, docPath, status, notes));
-      }
-
-      return new RegistryParsed(schema, canonical, entries, placeholders);
-    }
-    catch (JsonException ex)
-    {
-      errors.Add($"registry.yaml invalid JSON: {ex.Message}");
-      return null;
-    }
-  }
-
-  private static ToolDocParsed? ParseToolDoc(string docPath, List<string> errors)
-  {
-    try
-    {
-      using var doc = JsonDocument.Parse(File.ReadAllText(docPath));
-      var root = doc.RootElement;
-      if (root.ValueKind != JsonValueKind.Object)
-      {
-        errors.Add($"tool doc must be a JSON object: {docPath}");
-        return null;
-      }
-
-      var schema = GetRequiredString(root, "schema", docPath, errors);
-      var id = GetRequiredString(root, "id", docPath, errors);
-      var canonical = GetRequiredString(root, "canonical_path", docPath, errors);
-      var projectPath = GetRequiredString(root, "project_path_rel", docPath, errors);
-      var kind = GetRequiredString(root, "kind", docPath, errors);
-      var placeholders = GetRequiredStringArray(root, "placeholders", docPath, errors);
-      var commandsArray = GetRequiredArray(root, "commands", docPath, errors);
-
-      if (schema is null || id is null || canonical is null || projectPath is null || kind is null || placeholders is null || commandsArray is null)
-        return null;
-
-      var commands = new List<ToolCommandParsed>();
-      foreach (var item in commandsArray.Value.EnumerateArray())
-      {
-        if (item.ValueKind != JsonValueKind.Object)
-        {
-          errors.Add($"commands entries must be objects: {docPath}");
-          continue;
-        }
-
-        var name = GetRequiredString(item, "name", docPath, errors);
-        var example = GetRequiredString(item, "example", docPath, errors);
-        if (name is null || example is null)
-          continue;
-
-        commands.Add(new ToolCommandParsed(name, example));
-      }
-
-      return new ToolDocParsed(schema, id, canonical, projectPath, kind, commands, placeholders);
-    }
-    catch (JsonException ex)
-    {
-      errors.Add($"tool doc invalid JSON: {docPath}: {ex.Message}");
-      return null;
-    }
-  }
-
-  private static void ValidateRegistry(RegistryParsed registry, List<string> errors)
+  private static void ValidateRegistry(ToolRegistryDoc registry, List<string> errors)
   {
     if (!string.Equals(registry.Schema, ToolRegistrySchemaId, StringComparison.Ordinal))
       errors.Add($"registry schema must be '{ToolRegistrySchemaId}'");
@@ -211,49 +156,43 @@ public static class VerifyToolsV0Logic
     if (!registry.CanonicalPath.StartsWith("tool-registry://", StringComparison.Ordinal))
       errors.Add("registry canonical_path must start with tool-registry://");
 
-    if (registry.Tools.Count == 0)
+    if (registry.Tools is null || registry.Tools.Count == 0)
       errors.Add("registry must contain at least one tool entry");
-
-    foreach (var placeholder in Placeholders)
-    {
-      if (!registry.Placeholders.Contains(placeholder, StringComparer.Ordinal))
-        errors.Add($"registry missing placeholder: {placeholder}");
-    }
-
-    foreach (var tool in registry.Tools)
-    {
-      if (string.IsNullOrWhiteSpace(tool.Id))
-        errors.Add("registry tool id is required");
-
-      if (!IsRepoRelativePath(tool.DocPathRel))
-        errors.Add($"tool doc path must be repo-relative: {tool.DocPathRel}");
-
-      if (!IsStatusValid(tool.Status))
-        errors.Add($"tool status invalid: {tool.Status}");
-    }
   }
 
-  private static void ValidateToolDoc(ToolDocParsed doc, ToolRegistryEntryParsed registryEntry, List<string> errors)
+  private static void ValidateToolDoc(ToolDoc doc, ToolRegistryEntry registryEntry, List<string> errors)
   {
-    if (!string.Equals(doc.Schema, ToolSchemaId, StringComparison.Ordinal))
+    if (string.IsNullOrWhiteSpace(doc.Schema))
+    {
+      errors.Add($"tool schema is required for {registryEntry.DocPathRel}");
+    }
+    else if (!string.Equals(doc.Schema, ToolSchemaId, StringComparison.Ordinal))
       errors.Add($"tool schema must be '{ToolSchemaId}' for {registryEntry.DocPathRel}");
 
-    if (!string.Equals(doc.Id, registryEntry.Id, StringComparison.Ordinal))
+    if (string.IsNullOrWhiteSpace(doc.Id))
+      errors.Add($"tool id is required for {registryEntry.DocPathRel}");
+    else if (!string.Equals(doc.Id, registryEntry.Id, StringComparison.Ordinal))
       errors.Add($"tool id mismatch: registry {registryEntry.Id} vs doc {doc.Id}");
 
-    if (!doc.CanonicalPath.StartsWith("tool://", StringComparison.Ordinal))
+    if (string.IsNullOrWhiteSpace(doc.CanonicalPath))
+      errors.Add($"tool canonical_path is required for {registryEntry.DocPathRel}");
+    else if (!doc.CanonicalPath.StartsWith("tool://", StringComparison.Ordinal))
       errors.Add($"tool canonical_path must start with tool://: {doc.CanonicalPath}");
 
-    if (!IsRepoRelativePath(doc.ProjectPathRel))
+    if (string.IsNullOrWhiteSpace(doc.ProjectPathRel))
+      errors.Add($"project_path_rel is required for {registryEntry.DocPathRel}");
+    else if (!RepoPath.IsRepoRelative(doc.ProjectPathRel))
       errors.Add($"project_path_rel must be repo-relative: {doc.ProjectPathRel}");
 
-    if (!string.Equals(doc.Kind, "dotnet", StringComparison.Ordinal))
+    if (string.IsNullOrWhiteSpace(doc.Kind))
+      errors.Add($"tool kind is required for {registryEntry.DocPathRel}");
+    else if (!string.Equals(doc.Kind, "dotnet", StringComparison.Ordinal))
       errors.Add($"tool kind must be dotnet: {doc.Kind}");
 
-    if (doc.Commands.Count == 0)
+    if (doc.Commands is null || doc.Commands.Count == 0)
       errors.Add("tool commands must not be empty");
 
-    foreach (var cmd in doc.Commands)
+    foreach (var cmd in doc.Commands ?? new List<ToolCommandDoc>())
     {
       if (string.IsNullOrWhiteSpace(cmd.Name))
         errors.Add("tool command name is required");
@@ -270,119 +209,180 @@ public static class VerifyToolsV0Logic
       if (!cmd.Example.Contains(doc.ProjectPathRel, StringComparison.Ordinal))
         errors.Add($"tool command example must include project_path_rel: {cmd.Name}");
     }
+  }
 
-    foreach (var placeholder in Placeholders)
+  private static void ValidateCommandDirectories(string repoRoot, List<string> errors)
+  {
+    var commandsRoot = RepoPath.ResolvePath(repoRoot, CommandsRootRel);
+    if (!Directory.Exists(commandsRoot))
     {
-      if (!doc.Placeholders.Contains(placeholder, StringComparer.Ordinal))
-        errors.Add($"tool doc missing placeholder: {placeholder}");
+      errors.Add($"missing commands directory: {CommandsRootRel}");
+      return;
+    }
+
+    foreach (var directory in Directory.EnumerateDirectories(commandsRoot))
+    {
+      var csFiles = Directory.EnumerateFiles(directory, "*.cs", SearchOption.TopDirectoryOnly).ToList();
+      var testFiles = csFiles.Where(f => f.EndsWith("Tests.cs", StringComparison.Ordinal)).ToList();
+      var nonTestFiles = csFiles.Where(f => !f.EndsWith("Tests.cs", StringComparison.Ordinal)).ToList();
+
+      var rel = RepoRelative(repoRoot, directory);
+      if (testFiles.Count != 1)
+        errors.Add($"{rel}: expected exactly one *Tests.cs, found {testFiles.Count}");
+
+      if (nonTestFiles.Count == 0)
+        errors.Add($"{rel}: expected at least one non-test .cs file");
     }
   }
 
-  private static bool IsStatusValid(string status)
+  private static void EnsureExists(string path, string label, List<string> errors)
   {
-    return string.Equals(status, "active", StringComparison.Ordinal)
-      || string.Equals(status, "deprecated", StringComparison.Ordinal)
-      || string.Equals(status, "inactive", StringComparison.Ordinal);
+    if (!File.Exists(path))
+      errors.Add($"missing {label}");
   }
 
-  private static bool IsRepoRelativePath(string path)
+  private static JsonSchema? LoadSchema(string path, string label, List<string> errors)
   {
-    if (string.IsNullOrWhiteSpace(path))
-      return false;
-
-    if (Path.IsPathRooted(path))
-      return false;
-
-    if (path.Contains(":", StringComparison.Ordinal))
-      return false;
-
-    if (path.Contains("..", StringComparison.Ordinal))
-      return false;
-
-    return path.StartsWith("[", StringComparison.Ordinal);
-  }
-
-  private static string ResolvePath(string repoRoot, string relPath)
-  {
-    var normalized = relPath.Replace('\\', '/');
-    var parts = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
-    return Path.Combine(new[] { repoRoot }.Concat(parts).ToArray());
-  }
-
-  private static string? GetRequiredString(JsonElement root, string name, string source, List<string> errors)
-  {
-    if (!root.TryGetProperty(name, out var value))
+    try
     {
-      errors.Add($"missing '{name}' in {source}");
+      var json = File.ReadAllText(path);
+      return JsonSchema.FromText(json);
+    }
+    catch (Exception ex)
+    {
+      errors.Add($"invalid JSON schema {label}: {ex.Message}");
       return null;
     }
-
-    if (value.ValueKind != JsonValueKind.String)
-    {
-      errors.Add($"'{name}' must be a string in {source}");
-      return null;
-    }
-
-    var text = value.GetString() ?? string.Empty;
-    if (string.IsNullOrWhiteSpace(text))
-    {
-      errors.Add($"'{name}' must not be empty in {source}");
-      return null;
-    }
-
-    return text;
   }
 
-  private static string? GetOptionalString(JsonElement root, string name)
+  private static void ValidateSchema(JsonSchema schema, JsonNode instance, string label, List<string> errors)
   {
-    if (!root.TryGetProperty(name, out var value))
-      return null;
-
-    return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+    var results = schema.Evaluate(instance);
+    if (!results.IsValid)
+      errors.Add($"schema validation failed for {label}");
   }
 
-  private static IReadOnlyList<string>? GetRequiredStringArray(JsonElement root, string name, string source, List<string> errors)
+  private static T? DeserializeYaml<T>(string yaml, string label, List<string> errors)
   {
-    var array = GetRequiredArray(root, name, source, errors);
-    if (array is null)
-      return null;
-
-    var list = new List<string>();
-    foreach (var item in array.Value.EnumerateArray())
+    try
     {
-      if (item.ValueKind != JsonValueKind.String)
+      var deserializer = BuildDeserializer();
+      var value = deserializer.Deserialize<T>(yaml);
+      if (value is null)
+        errors.Add($"{label} is empty or invalid");
+
+      return value;
+    }
+    catch (YamlException ex)
+    {
+      errors.Add($"invalid YAML in {label}: {ex.Message}");
+      return default;
+    }
+  }
+
+  private static JsonNode? ParseYamlAsJsonNode(string yaml, string label, List<string> errors)
+  {
+    try
+    {
+      var deserializer = BuildDeserializer();
+      var data = deserializer.Deserialize<object>(yaml);
+      if (data is null)
       {
-        errors.Add($"'{name}' must contain only strings in {source}");
+        errors.Add($"{label} is empty or invalid");
         return null;
       }
-
-      var value = item.GetString();
-      if (string.IsNullOrWhiteSpace(value))
-      {
-        errors.Add($"'{name}' must not contain empty strings in {source}");
-        return null;
-      }
-
-      list.Add(value);
+      return ToJsonNode(data);
     }
-
-    return list;
+    catch (YamlException ex)
+    {
+      errors.Add($"invalid YAML in {label}: {ex.Message}");
+      return null;
+    }
   }
 
-  private static JsonElement? GetRequiredArray(JsonElement root, string name, string source, List<string> errors)
+  private static JsonNode? ToJsonNode(object? value)
   {
-    if (!root.TryGetProperty(name, out var value))
+    switch (value)
     {
-      errors.Add($"missing '{name}' in {source}");
-      return null;
+      case null:
+        return null;
+      case string s:
+        return JsonValue.Create(s);
+      case bool b:
+        return JsonValue.Create(b);
+      case int i:
+        return JsonValue.Create(i);
+      case long l:
+        return JsonValue.Create(l);
+      case double d:
+        return JsonValue.Create(d);
+      case float f:
+        return JsonValue.Create(f);
+      case decimal dec:
+        return JsonValue.Create(dec);
+      case IDictionary<object, object> dict:
+      {
+        var obj = new JsonObject();
+        foreach (var entry in dict)
+        {
+          var key = entry.Key?.ToString() ?? string.Empty;
+          obj[key] = ToJsonNode(entry.Value);
+        }
+        return obj;
+      }
+      case IDictionary<string, object> dictString:
+      {
+        var obj = new JsonObject();
+        foreach (var entry in dictString)
+          obj[entry.Key] = ToJsonNode(entry.Value);
+        return obj;
+      }
+      case IEnumerable<object> list:
+      {
+        var array = new JsonArray();
+        foreach (var item in list)
+          array.Add(ToJsonNode(item));
+        return array;
+      }
+      default:
+        return JsonValue.Create(value.ToString());
     }
+  }
 
-    if (value.ValueKind != JsonValueKind.Array)
-    {
-      errors.Add($"'{name}' must be an array in {source}");
-      return null;
-    }
+  private static IDeserializer BuildDeserializer()
+  {
+    return new DeserializerBuilder()
+      .WithNamingConvention(NullNamingConvention.Instance)
+      .IgnoreUnmatchedProperties()
+      .Build();
+  }
 
-    return value;
+  private static string RepoRelative(string repoRoot, string fullPath)
+  {
+    var rel = Path.GetRelativePath(repoRoot, fullPath).Replace('\\', '/');
+    return rel;
+  }
+
+  private static void Log(
+    LogWriter? logger,
+    string command,
+    string repoRootDisplay,
+    IReadOnlyList<string> decisions,
+    IReadOnlyList<string> edits,
+    IReadOnlyList<string> warnings,
+    IReadOnlyList<string> errors)
+  {
+    if (logger is null)
+      return;
+
+    logger.Write(new LogEntry(
+      DateTimeOffset.UtcNow.ToString("O"),
+      command,
+      repoRootDisplay,
+      decisions,
+      edits,
+      warnings,
+      errors.Count == 0 ? null : errors
+    ));
   }
 }

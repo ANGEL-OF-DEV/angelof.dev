@@ -18,9 +18,21 @@ public static class RegistryCommandFactory
     {
       Description = "Repository root (defaults to current directory)."
     };
+    var logSinkOpt = new Option<string>("--log-sink")
+    {
+      Description = "Log sink (file|stdout)."
+    };
+    var logFileOpt = new Option<string>("--log-file")
+    {
+      Description = "Repo-relative log file path (overrides default)."
+    };
+    var forceOpt = new Option<bool>("--force")
+    {
+      Description = "Allow schema rewrites beyond template-minimal edits."
+    };
 
-    registry.Subcommands.Add(BootstrapToolsV0Command.Create(repoRootOpt));
-    registry.Subcommands.Add(VerifyToolsV0Command.Create(repoRootOpt));
+    registry.Subcommands.Add(BootstrapToolsV0Command.Create(repoRootOpt, logSinkOpt, logFileOpt, forceOpt));
+    registry.Subcommands.Add(VerifyToolsV0Command.Create(repoRootOpt, logSinkOpt, logFileOpt));
     registry.Subcommands.Add(HelpCommand());
 
     return registry;
@@ -33,6 +45,7 @@ public static class RegistryCommandFactory
     {
       Console.WriteLine("registry bootstrap-tools-v0 --repo-root .");
       Console.WriteLine("registry verify-tools-v0 --repo-root .");
+      Console.WriteLine("options: --log-sink stdout | --log-file [logs.local]/registry.tool/your.jsonl | --force");
     });
 
     return help;

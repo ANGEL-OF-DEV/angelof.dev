@@ -1,19 +1,24 @@
 // BootstrapToolsV0Logic.cs | LICENSED UNDER THE 𝗘𝗨𝗣𝗟 [eupl.eu/1.2/en]
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using System.Linq;
+using Registry.Tool.App.Logging;
+using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Registry.Tool.Commands.BootstrapToolsV0;
 
 public static class BootstrapToolsV0Logic
 {
-  // MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract
-  // MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs
   private const string RegistryRel = "[monocoque.tools]/registry/v0/registry.yaml";
   private const string ToolSchemaRel = "[monocoque.tools]/schemas/v0/tool.schema.json";
   private const string ToolRegistrySchemaRel = "[monocoque.tools]/schemas/v0/tool_registry.schema.json";
   private const string ToolDocRel = "[monocoque.tools]/tools/v0/registry.tool.yaml";
+
+  private const string UrRegistryRel = "[monocoque.ur]/registry/v0/registry.yaml";
+  private const string TemplatePackDefaultRel = "[monocoque.ur]/templates/registry-tool/v0/pack.yaml";
+  private const string TemplatePackEntryId = "TEMPLATE.REGISTRY.TOOL.v0";
 
   private const string ToolSchemaId = "tool.v0";
   private const string ToolRegistrySchemaId = "tool_registry.v0";
@@ -21,118 +26,230 @@ public static class BootstrapToolsV0Logic
   private const string ToolCanonicalPath = "tool://registry.tool";
   private const string RegistryCanonicalPath = "tool-registry://tools.v0";
 
-  private static readonly IReadOnlyList<string> Placeholders = new[]
-  {
-    "MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract",
-    "MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs"
-  };
-
-  public static OperationResult Run(string? repoRootArg)
+  public static CommandResult Run(BootstrapOptions options)
   {
     var errors = new List<string>();
-    var repoRoot = ResolveRepoRoot(repoRootArg, errors);
-    if (errors.Count > 0)
-      return OperationResult.Failure(errors);
+    var warnings = new List<string>();
+    var decisions = new List<string>();
+    var edits = new List<string>();
 
-    var registryPath = ResolvePath(repoRoot, RegistryRel);
-    var toolSchemaPath = ResolvePath(repoRoot, ToolSchemaRel);
-    var toolRegistrySchemaPath = ResolvePath(repoRoot, ToolRegistrySchemaRel);
-    var toolDocPath = ResolvePath(repoRoot, ToolDocRel);
+    var repoRoot = RepoPath.ResolveRepoRoot(options.RepoRoot, errors);
+    if (errors.Count > 0)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+
+    using var logger = LogWriter.Create(repoRoot, options.LogOptions, errors);
+    if (errors.Count > 0)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+
+    var templates = LoadTemplates(repoRoot, warnings, decisions, errors);
+    if (templates is null)
+    {
+      Log(logger, "registry bootstrap-tools-v0", RepoPath.NormalizeRepoRootDisplay(options.RepoRoot), decisions, edits, warnings, errors);
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+    }
+
+    var tokens = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+      ["TOOL_ID"] = ToolId,
+      ["TOOL_CANONICAL_PATH"] = ToolCanonicalPath,
+      ["TOOL_PROJECT_PATH_REL"] = ToolProjectPathRel(),
+      ["BOOTSTRAP_COMMAND"] = $"dotnet run --project {ToolProjectPathRel()} -c Release -- --app registry bootstrap-tools-v0 --repo-root .",
+      ["VERIFY_COMMAND"] = $"dotnet run --project {ToolProjectPathRel()} -c Release -- --app registry verify-tools-v0 --repo-root ."
+    };
+
+    var toolDocText = RenderTemplate(templates.ToolDocYaml, tokens);
+    var toolDoc = DeserializeYaml<ToolDoc>(toolDocText, "tool.doc.yaml", errors);
+    if (toolDoc is null)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+
+    var registryTemplate = DeserializeYaml<ToolRegistryDoc>(templates.RegistryYaml, "tool.registry.yaml", errors);
+    if (registryTemplate is null)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+
+    var registryPath = RepoPath.ResolvePath(repoRoot, RegistryRel);
+    var existingRegistry = LoadRegistry(registryPath, errors);
+    if (errors.Count > 0)
+      return CommandResult.Failure(errors, warnings, decisions, edits);
+
+    var registryDoc = existingRegistry ?? registryTemplate;
+    registryDoc.Schema = ToolRegistrySchemaId;
+    registryDoc.CanonicalPath = RegistryCanonicalPath;
+    registryDoc.Placeholders = registryTemplate.Placeholders ?? new List<string>();
+    registryDoc.Tools = MergeToolEntry(existingRegistry?.Tools ?? registryTemplate.Tools);
+    registryDoc.GeneratedAtUtc = existingRegistry?.GeneratedAtUtc ?? registryTemplate.GeneratedAtUtc;
+
+    var toolDocYaml = SerializeYaml(toolDoc);
+    var registryYaml = SerializeYaml(registryDoc);
+
+    var toolSchemaPath = RepoPath.ResolvePath(repoRoot, ToolSchemaRel);
+    var toolRegistrySchemaPath = RepoPath.ResolvePath(repoRoot, ToolRegistrySchemaRel);
+    var toolDocPath = RepoPath.ResolvePath(repoRoot, ToolDocRel);
 
     EnsureDirectory(Path.GetDirectoryName(registryPath));
     EnsureDirectory(Path.GetDirectoryName(toolSchemaPath));
     EnsureDirectory(Path.GetDirectoryName(toolRegistrySchemaPath));
     EnsureDirectory(Path.GetDirectoryName(toolDocPath));
 
-    var registry = LoadRegistry(registryPath, errors) ?? BuildRegistry();
-    if (errors.Count > 0)
-      return OperationResult.Failure(errors);
+    if (!WriteSchemaIfAllowed(toolSchemaPath, templates.ToolSchemaJson, ToolSchemaRel, options.Force, errors, edits))
+      return CommandResult.Failure(errors, warnings, decisions, edits);
 
-    registry = registry with
-    {
-      Schema = ToolRegistrySchemaId,
-      CanonicalPath = RegistryCanonicalPath,
-      Placeholders = Placeholders,
-      Tools = MergeToolEntry(registry.Tools)
-    };
+    if (!WriteSchemaIfAllowed(toolRegistrySchemaPath, templates.ToolRegistrySchemaJson, ToolRegistrySchemaRel, options.Force, errors, edits))
+      return CommandResult.Failure(errors, warnings, decisions, edits);
 
-    var toolDoc = BuildToolDoc();
+    WriteIfChanged(toolDocPath, toolDocYaml, ToolDocRel, edits);
+    WriteIfChanged(registryPath, registryYaml, RegistryRel, edits);
 
-    WriteIfChanged(toolSchemaPath, SerializeJson(BuildToolSchemaJson()));
-    WriteIfChanged(toolRegistrySchemaPath, SerializeJson(BuildToolRegistrySchemaJson()));
-    WriteIfChanged(toolDocPath, SerializeJson(toolDoc));
-    WriteIfChanged(registryPath, SerializeJson(registry));
+    Log(logger, "registry bootstrap-tools-v0", RepoPath.NormalizeRepoRootDisplay(options.RepoRoot), decisions, edits, warnings, errors);
 
-    return OperationResult.Success();
+    return errors.Count == 0
+      ? CommandResult.Success(warnings, decisions, edits)
+      : CommandResult.Failure(errors, warnings, decisions, edits);
   }
 
-  private static string ResolveRepoRoot(string? repoRootArg, List<string> errors)
+  private static TemplateBundle? LoadTemplates(
+    string repoRoot,
+    List<string> warnings,
+    List<string> decisions,
+    List<string> errors)
   {
-    var resolved = string.IsNullOrWhiteSpace(repoRootArg) ? "." : repoRootArg;
-    var full = Path.GetFullPath(resolved);
-    if (!Directory.Exists(full))
+    var packPath = ResolveTemplatePackPath(repoRoot, warnings, decisions, errors);
+    if (errors.Count > 0)
+      return null;
+
+    if (!File.Exists(packPath))
     {
-      errors.Add($"repo-root not found: {repoRootArg}");
-      return full;
+      errors.Add($"template pack not found: {RepoPath.ToRepoRelative(repoRoot, packPath)}");
+      return null;
     }
 
-    return full;
-  }
+    var packText = File.ReadAllText(packPath);
+    var pack = DeserializeYaml<TemplatePack>(packText, "template pack", errors);
+    if (pack is null)
+      return null;
 
-  private static string ResolvePath(string repoRoot, string relPath)
-  {
-    var normalized = relPath.Replace('\\', '/');
-    var parts = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
-    return Path.Combine(new[] { repoRoot }.Concat(parts).ToArray());
-  }
-
-  private static ToolRegistryDoc BuildRegistry()
-  {
-    return new ToolRegistryDoc(
-      ToolRegistrySchemaId,
-      RegistryCanonicalPath,
-      MergeToolEntry(Array.Empty<ToolRegistryEntry>()),
-      null,
-      Placeholders
-    );
-  }
-
-  private static IReadOnlyList<ToolRegistryEntry> MergeToolEntry(IReadOnlyList<ToolRegistryEntry> entries)
-  {
-    var next = entries.Where(e => !string.Equals(e.Id, ToolId, StringComparison.OrdinalIgnoreCase)).ToList();
-    next.Add(new ToolRegistryEntry(
-      ToolId,
-      ToolDocRel,
-      "active",
-      "self-hosted"
-    ));
-
-    return next.OrderBy(e => e.Id, StringComparer.OrdinalIgnoreCase).ToArray();
-  }
-
-  private static ToolDoc BuildToolDoc()
-  {
-    var commands = new List<ToolCommandDoc>
+    var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var entry in pack.Templates)
     {
-      new("bootstrap-tools-v0", $"dotnet run --project {ToolProjectPathRel()} -c Release -- --app registry bootstrap-tools-v0 --repo-root ."),
-      new("verify-tools-v0", $"dotnet run --project {ToolProjectPathRel()} -c Release -- --app registry verify-tools-v0 --repo-root .")
-    };
+      if (!RepoPath.IsRepoRelative(entry.PathRel))
+      {
+        errors.Add($"template path must be repo-relative: {entry.PathRel}");
+        continue;
+      }
 
-    return new ToolDoc(
-      ToolSchemaId,
-      ToolId,
-      ToolCanonicalPath,
-      ToolProjectPathRel(),
-      "dotnet",
-      commands,
-      null,
-      Placeholders
+      var path = RepoPath.ResolvePath(repoRoot, entry.PathRel);
+      if (!File.Exists(path))
+      {
+        errors.Add($"template file missing: {entry.PathRel}");
+        continue;
+      }
+
+      templates[entry.Id] = File.ReadAllText(path);
+    }
+
+    if (errors.Count > 0)
+      return null;
+
+    var bundle = new TemplateBundle(
+      GetTemplate(templates, "tool.schema.json", errors),
+      GetTemplate(templates, "tool_registry.schema.json", errors),
+      GetTemplate(templates, "tool.doc.yaml", errors),
+      GetTemplate(templates, "tool.registry.yaml", errors)
     );
+
+    return errors.Count > 0 ? null : bundle;
   }
 
-  private static string ToolProjectPathRel()
+  private static string ResolveTemplatePackPath(
+    string repoRoot,
+    List<string> warnings,
+    List<string> decisions,
+    List<string> errors)
   {
-    return "[monocoque.tools]/Registry.Tool/Registry.Tool.csproj";
+    var urRegistryPath = RepoPath.ResolvePath(repoRoot, UrRegistryRel);
+    if (File.Exists(urRegistryPath))
+    {
+      if (TryResolveTemplatePackFromUrRegistry(urRegistryPath, repoRoot, decisions, errors, out var resolved))
+        return resolved;
+
+      if (errors.Count > 0)
+        return RepoPath.ResolvePath(repoRoot, TemplatePackDefaultRel);
+    }
+
+    warnings.Add("template-pack: falling back to default pack path");
+    decisions.Add("template-pack: fallback-default");
+    // MONOCOQUE_PLACEHOLDER(V0): remove bootstrap hardcode; resolve templates via registry only
+    return RepoPath.ResolvePath(repoRoot, TemplatePackDefaultRel);
+  }
+
+  private static bool TryResolveTemplatePackFromUrRegistry(
+    string urRegistryPath,
+    string repoRoot,
+    List<string> decisions,
+    List<string> errors,
+    out string resolvedPath)
+  {
+    resolvedPath = string.Empty;
+
+    try
+    {
+      var yaml = new YamlStream();
+      using var reader = new StringReader(File.ReadAllText(urRegistryPath));
+      yaml.Load(reader);
+
+      if (yaml.Documents.Count == 0)
+        return false;
+
+      if (yaml.Documents[0].RootNode is not YamlMappingNode root)
+        return false;
+
+      if (!root.Children.TryGetValue(new YamlScalarNode("entries"), out var entriesNode))
+        return false;
+
+      if (entriesNode is not YamlSequenceNode entries)
+        return false;
+
+      foreach (var entryNode in entries.Children)
+      {
+        if (entryNode is not YamlMappingNode entry)
+          continue;
+
+        var id = GetScalar(entry, "id");
+        var kind = GetScalar(entry, "kind");
+        var path = GetScalar(entry, "path");
+
+        if (!string.Equals(kind, "template_pack", StringComparison.OrdinalIgnoreCase))
+          continue;
+
+        if (!string.Equals(id, TemplatePackEntryId, StringComparison.OrdinalIgnoreCase))
+          continue;
+
+        if (string.IsNullOrWhiteSpace(path))
+          return false;
+
+        if (path.StartsWith("ur/", StringComparison.Ordinal))
+        {
+          var relative = path.Substring("ur/".Length);
+          decisions.Add($"template-pack: ur-registry {id} -> {path}");
+          resolvedPath = Path.Combine(repoRoot, "[monocoque.ur]", relative.Replace('/', Path.DirectorySeparatorChar));
+          return true;
+        }
+      }
+
+      return false;
+    }
+    catch (YamlException ex)
+    {
+      errors.Add($"invalid YAML in ur registry: {ex.Message}");
+      return false;
+    }
+  }
+
+  private static string? GetScalar(YamlMappingNode mapping, string key)
+  {
+    if (!mapping.Children.TryGetValue(new YamlScalarNode(key), out var node))
+      return null;
+
+    return node is YamlScalarNode scalar ? scalar.Value : null;
   }
 
   private static ToolRegistryDoc? LoadRegistry(string registryPath, List<string> errors)
@@ -142,21 +259,35 @@ public static class BootstrapToolsV0Logic
 
     try
     {
-      var json = File.ReadAllText(registryPath);
-      var doc = JsonSerializer.Deserialize<ToolRegistryDoc>(json, SerializerOptions());
-      if (doc is null)
-      {
-        errors.Add("registry.yaml is empty or invalid JSON");
-        return null;
-      }
-
-      return doc;
+      var text = File.ReadAllText(registryPath);
+      return DeserializeYaml<ToolRegistryDoc>(text, "registry.yaml", errors);
     }
-    catch (JsonException ex)
+    catch (Exception ex)
     {
-      errors.Add($"registry.yaml invalid JSON: {ex.Message}");
+      errors.Add($"registry.yaml read failed: {ex.Message}");
       return null;
     }
+  }
+
+  private static List<ToolRegistryEntry> MergeToolEntry(List<ToolRegistryEntry>? entries)
+  {
+    var list = entries?.Where(e => !string.Equals(e.Id, ToolId, StringComparison.OrdinalIgnoreCase)).ToList()
+      ?? new List<ToolRegistryEntry>();
+
+    list.Add(new ToolRegistryEntry
+    {
+      Id = ToolId,
+      DocPathRel = ToolDocRel,
+      Status = "active",
+      Notes = "self-hosted"
+    });
+
+    return list.OrderBy(e => e.Id, StringComparer.OrdinalIgnoreCase).ToList();
+  }
+
+  private static string ToolProjectPathRel()
+  {
+    return "[monocoque.tools]/Registry.Tool/Registry.Tool.csproj";
   }
 
   private static void EnsureDirectory(string? path)
@@ -168,122 +299,163 @@ public static class BootstrapToolsV0Logic
       Directory.CreateDirectory(path);
   }
 
-  private static void WriteIfChanged(string path, string content)
+  private static string RenderTemplate(string template, IReadOnlyDictionary<string, string> tokens)
   {
+    var output = template;
+    foreach (var token in tokens)
+    {
+      output = output.Replace("{{" + token.Key + "}}", token.Value, StringComparison.Ordinal);
+    }
+
+    return output;
+  }
+
+  private static bool WriteSchemaIfAllowed(
+    string path,
+    string template,
+    string relPath,
+    bool force,
+    List<string> errors,
+    List<string> edits)
+  {
+    if (!IsJsonValid(template, relPath, errors))
+      return false;
+
+    var normalized = EnsureTrailingNewline(template);
     if (File.Exists(path))
     {
       var existing = File.ReadAllText(path);
-      if (string.Equals(existing, content, StringComparison.Ordinal))
+      if (!string.Equals(existing, normalized, StringComparison.Ordinal))
+      {
+        if (!force)
+        {
+          errors.Add($"schema differs for {relPath}; use --force to overwrite");
+          return false;
+        }
+
+        File.WriteAllText(path, normalized);
+        edits.Add($"updated {relPath} (force)");
+        return true;
+      }
+
+      return true;
+    }
+
+    File.WriteAllText(path, normalized);
+    edits.Add($"created {relPath}");
+    return true;
+  }
+
+  private static void WriteIfChanged(string path, string content, string relPath, List<string> edits)
+  {
+    var normalized = EnsureTrailingNewline(content);
+    if (File.Exists(path))
+    {
+      var existing = File.ReadAllText(path);
+      if (string.Equals(existing, normalized, StringComparison.Ordinal))
         return;
     }
 
-    File.WriteAllText(path, content);
+    File.WriteAllText(path, normalized);
+    edits.Add($"wrote {relPath}");
   }
 
-  private static string SerializeJson<T>(T value)
+  private static bool IsJsonValid(string json, string label, List<string> errors)
   {
-    return JsonSerializer.Serialize(value, SerializerOptions()) + "\n";
-  }
-
-  private static JsonSerializerOptions SerializerOptions()
-  {
-    return new JsonSerializerOptions
+    try
     {
-      WriteIndented = true,
-      DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-  }
-
-  private static JsonObject BuildToolSchemaJson()
-  {
-    var schema = new JsonObject
+      using var _ = JsonDocument.Parse(json);
+      return true;
+    }
+    catch (JsonException ex)
     {
-      ["$schema"] = "https://json-schema.org/draft/2020-12/schema",
-      ["$id"] = "tool.schema.v0",
-      ["$comment"] = "MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract; MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs",
-      ["title"] = "Tool schema v0",
-      ["type"] = "object",
-      ["additionalProperties"] = false,
-      ["required"] = new JsonArray("schema", "id", "canonical_path", "project_path_rel", "kind", "commands", "placeholders"),
-      ["properties"] = new JsonObject
-      {
-        ["schema"] = new JsonObject { ["const"] = ToolSchemaId },
-        ["id"] = new JsonObject { ["type"] = "string", ["minLength"] = 1 },
-        ["canonical_path"] = new JsonObject { ["type"] = "string", ["pattern"] = "^tool://" },
-        ["project_path_rel"] = new JsonObject { ["type"] = "string", ["pattern"] = "^\\[[^\\]]+\\]/" },
-        ["kind"] = new JsonObject { ["type"] = "string", ["enum"] = new JsonArray("dotnet") },
-        ["commands"] = new JsonObject
-        {
-          ["type"] = "array",
-          ["minItems"] = 1,
-          ["items"] = new JsonObject
-          {
-            ["type"] = "object",
-            ["additionalProperties"] = false,
-            ["required"] = new JsonArray("name", "example"),
-            ["properties"] = new JsonObject
-            {
-              ["name"] = new JsonObject { ["type"] = "string", ["minLength"] = 1 },
-              ["example"] = new JsonObject { ["type"] = "string", ["minLength"] = 1 }
-            }
-          }
-        },
-        ["generated_at_utc"] = new JsonObject { ["type"] = "string", ["format"] = "date-time" },
-        ["placeholders"] = new JsonObject
-        {
-          ["type"] = "array",
-          ["minItems"] = 2,
-          ["items"] = new JsonObject { ["type"] = "string" }
-        }
-      }
-    };
-
-    return schema;
+      errors.Add($"invalid JSON template for {label}: {ex.Message}");
+      return false;
+    }
   }
 
-  private static JsonObject BuildToolRegistrySchemaJson()
+  private static T? DeserializeYaml<T>(string yaml, string label, List<string> errors)
   {
-    var schema = new JsonObject
+    try
     {
-      ["$schema"] = "https://json-schema.org/draft/2020-12/schema",
-      ["$id"] = "tool_registry.schema.v0",
-      ["$comment"] = "MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract; MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs",
-      ["title"] = "Tool registry schema v0",
-      ["type"] = "object",
-      ["additionalProperties"] = false,
-      ["required"] = new JsonArray("schema", "canonical_path", "tools", "placeholders"),
-      ["properties"] = new JsonObject
-      {
-        ["schema"] = new JsonObject { ["const"] = ToolRegistrySchemaId },
-        ["canonical_path"] = new JsonObject { ["type"] = "string", ["pattern"] = "^tool-registry://" },
-        ["tools"] = new JsonObject
-        {
-          ["type"] = "array",
-          ["minItems"] = 1,
-          ["items"] = new JsonObject
-          {
-            ["type"] = "object",
-            ["additionalProperties"] = false,
-            ["required"] = new JsonArray("id", "doc_path_rel", "status"),
-            ["properties"] = new JsonObject
-            {
-              ["id"] = new JsonObject { ["type"] = "string", ["minLength"] = 1 },
-              ["doc_path_rel"] = new JsonObject { ["type"] = "string", ["pattern"] = "^\\[[^\\]]+\\]/" },
-              ["status"] = new JsonObject { ["type"] = "string", ["enum"] = new JsonArray("active", "deprecated", "inactive") },
-              ["notes"] = new JsonObject { ["type"] = "string" }
-            }
-          }
-        },
-        ["generated_at_utc"] = new JsonObject { ["type"] = "string", ["format"] = "date-time" },
-        ["placeholders"] = new JsonObject
-        {
-          ["type"] = "array",
-          ["minItems"] = 2,
-          ["items"] = new JsonObject { ["type"] = "string" }
-        }
-      }
-    };
+      var deserializer = BuildDeserializer();
+      var value = deserializer.Deserialize<T>(yaml);
+      if (value is null)
+        errors.Add($"{label} is empty or invalid");
 
-    return schema;
+      return value;
+    }
+    catch (YamlException ex)
+    {
+      errors.Add($"invalid YAML in {label}: {ex.Message}");
+      return default;
+    }
   }
+
+  private static string SerializeYaml<T>(T value)
+  {
+    var serializer = BuildSerializer();
+    return serializer.Serialize(value);
+  }
+
+  private static ISerializer BuildSerializer()
+  {
+    return new SerializerBuilder()
+      .WithNamingConvention(NullNamingConvention.Instance)
+      .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull)
+      .DisableAliases()
+      .Build();
+  }
+
+  private static IDeserializer BuildDeserializer()
+  {
+    return new DeserializerBuilder()
+      .WithNamingConvention(NullNamingConvention.Instance)
+      .IgnoreUnmatchedProperties()
+      .Build();
+  }
+
+  private static string EnsureTrailingNewline(string content)
+  {
+    return content.EndsWith("\n", StringComparison.Ordinal) ? content : content + "\n";
+  }
+
+  private static string GetTemplate(Dictionary<string, string> templates, string id, List<string> errors)
+  {
+    if (templates.TryGetValue(id, out var template))
+      return template;
+
+    errors.Add($"template '{id}' not found in pack");
+    return string.Empty;
+  }
+
+  private static void Log(
+    LogWriter? logger,
+    string command,
+    string repoRootDisplay,
+    IReadOnlyList<string> decisions,
+    IReadOnlyList<string> edits,
+    IReadOnlyList<string> warnings,
+    IReadOnlyList<string> errors)
+  {
+    if (logger is null)
+      return;
+
+    logger.Write(new LogEntry(
+      DateTimeOffset.UtcNow.ToString("O"),
+      command,
+      repoRootDisplay,
+      decisions,
+      edits,
+      warnings,
+      errors.Count == 0 ? null : errors
+    ));
+  }
+
+  private sealed record TemplateBundle(
+    string ToolSchemaJson,
+    string ToolRegistrySchemaJson,
+    string ToolDocYaml,
+    string RegistryYaml
+  );
 }
