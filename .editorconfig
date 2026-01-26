@@ -1,0 +1,76 @@
+root = true
+
+[*]
+charset                                         = utf-8
+end_of_line                                     = lf
+file_header_template                            = {fileName} | LICENSED UNDER THE 𝗘𝗨𝗣𝗟 [eupl.eu/1.2/en]
+
+# Guidelines / Line Length
+guidelines                                      = 100, 120
+ij_visual_guides                                = 100, 120
+max_line_length                                 = 100
+
+# Line Breaks / New Lines
+keep_user_linebreaks                            = true
+linebreaks_inside_tags_for_elements_longer_than = 100
+insert_final_newline                            = true
+
+# Indent
+indent_style                                    = space
+indent_size                                     = 2
+xmldoc_indent_size                              = 1
+xmldoc_indent_text                              = zeroindent
+xmldoc_indent_child_elements                    = zeroindent
+
+# Whitespace / Spaces / Tabs
+trim_trailing_whitespace                        = true
+tab_width                                       = 2
+xmldoc_tab_width                                = 1
+
+# Braces
+brace_style                                     = next_line
+braces_for_dowhile                              = required
+braces_for_fixed                                = required
+braces_for_for                                  = required
+braces_for_foreach                              = required
+braces_for_ifelse                               = required
+braces_for_lock                                 = required
+braces_for_using                                = required
+braces_for_while                                = required
+braces_redundant                                = false
+
+# Alignment
+ij_any_align_group_field_declarations           = true
+align_multiline_parameter                       = true
+align_multiline_argument                        = true
+
+# Wrapping
+wrap_text                                       = true
+wrap_lines                                      = true
+keep_user_wrapping                              = true
+wrap_around_elements                            = false
+wrap_arguments_style                            = chop_if_long
+wrap_extends_list_style                         = chop_if_long
+wrap_parameters_style                           = chop_if_long
+
+# C#
+csharp_prefer_braces                            = true
+
+#-------------------------------------------------------------------------------
+#
+#    Specific Rules
+#    - Indent style and sizes may need to be repeated
+#      for compatibility with tools, even if unchanged from [*]
+#
+#-------------------------------------------------------------------------------
+
+[*.{cs, csproj, json, jsonc, md, props, slnx, yaml, yml}]
+indent_style = space
+indent_size  = 2
+tab_width    = 2
+
+[*.md]
+max_line_length          = 144
+trim_trailing_whitespace = false
+keep_user_linebreaks     = true
+keep_user_wrapping       = true

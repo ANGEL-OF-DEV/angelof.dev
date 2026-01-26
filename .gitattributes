@@ -1,0 +1,28 @@
+#-------------------------------------------------------------------------------
+#   NEWLINE & ENCODING
+#-------------------------------------------------------------------------------
+* text=auto eol=lf encoding=UTF-8
+#-------------------------------------------------------------------------------
+#   TEST & SOURCE FILES
+#-------------------------------------------------------------------------------
+*.cs            text
+*.csproj        text
+*.DotSettings   text
+*.json          text
+*.md            text
+*.props         text
+*.ps1           text
+*.slnx          text
+*.txt           text
+*.vue           text
+.editorconfig   text
+.gitattributes  text
+.gitignore      text
+LICENSE         text
+#-------------------------------------------------------------------------------
+#   GIT LFS
+#-------------------------------------------------------------------------------
+*.blob  filter=lfs diff=lfs merge=lfs -text
+*.ico   filter=lfs diff=lfs merge=lfs -text
+*.nupkg filter=lfs diff=lfs merge=lfs -text
+*.webp  filter=lfs diff=lfs merge=lfs -text

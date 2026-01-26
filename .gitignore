@@ -1,0 +1,31 @@
+#----------------------------------------------------------
+#
+#   PATTERNS IGNORED BY DEFAULT:
+#     - $* (example: "$RECYCLE.BIN")
+#     - .* (example: ".temp")
+#     - _* (example: "_temp")
+#     - ~* (example: "~temp")
+#     - *~ (example: "temp~")
+#
+#----------------------------------------------------------
+$*
+.*
+_*
+~*
+*~
+#----------------------------------------------------------
+# EXPLICIT INCLUSIONS (overrides above)
+#----------------------------------------------------------
+!.npmrc
+!.editorconfig
+!.github/
+!.gitignore
+#----------------------------------------------------------
+System Volume Information
+#----------------------------------------------------------
+bin/
+obj/
+artifacts/
+node_modules/
+logs/
+*.yml.md.json

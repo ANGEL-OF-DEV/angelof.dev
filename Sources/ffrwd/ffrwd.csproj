@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
+    <RootNamespace>$(DefaultRootNamespace)</RootNamespace>
+    <AssemblyName>ffrwd</AssemblyName>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="LibGit2Sharp"/>
+    <PackageReference Include="YamlDotNet"/>
+    <PackageReference Include="Spectre.Console"/>
+    <PackageReference Include="Spectre.Console.Cli"/>
+    <PackageReference Include="Microsoft.Build.Locator"/>
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime"/>
+  </ItemGroup>
+</Project>

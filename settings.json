@@ -1,0 +1,33 @@
+{
+  "files.associations": {
+    "app*.json": "jsonc",
+    "global.json": "jsonc",
+    "launchSettings.json": "jsonc",
+    "settings.json": "jsonc",
+    "tsconfig*.json": "jsonc",
+    "vscode.*.json": "jsonc",
+    "*.cs": "csharp",
+    "*.cfg": "ini",
+    "*.conf": "ini",
+    "*.config": "xml",
+    "*.editorconfig": "ini",
+    "*.ini": "ini",
+    "*.json5": "json5",
+    "*.jsonc": "jsonc",
+    "*.mdx": "markdown",
+    "*.props": "xml",
+    "*.ps1": "powershell",
+    "*.sh": "shellscript",
+    "*.svg": "xml",
+    "*.targets": "xml",
+    "*.ts": "typescript",
+    "*.vue": "vue",
+    "*.yaml": "yaml",
+    "*.yml": "yaml"
+  },
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.{yml,yaml}"
+  },
+  "yaml.validate": true,
+  "yaml.schemasDownload.enable": true
+}

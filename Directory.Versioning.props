@@ -1,0 +1,24 @@
+<Project>
+  <Sdk Name="Dotnet.ReproducibleBuilds.Isolated" Version="1.2.39"/>
+
+  <PropertyGroup Label="nbgv">
+    <GitVersionBaseDirectory>$(DefaultGitVersionBaseDirectory)</GitVersionBaseDirectory>
+    <NBGV_ThisAssemblyIncludesPackageVersion>true</NBGV_ThisAssemblyIncludesPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup Label="Git+Versioning">
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" PrivateAssets="all"/>
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.39" PrivateAssets="all"/>
+    <PackageVersion Include="DotNet.ReproducibleBuilds.Isolated" Version="1.2.39" PrivateAssets="all"/>
+    <PackageVersion Include="Microsoft.SourceLink.AzureRepos.Git" Version="8.0.0" PrivateAssets="all"/>
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all"/>
+  </ItemGroup>
+
+  <ItemGroup Label="Git+Versioning">
+    <PackageReference Include="Nerdbank.GitVersioning"/>
+    <PackageReference Include="DotNet.ReproducibleBuilds"/>
+    <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub"/>
+  </ItemGroup>
+
+</Project>
