@@ -1,0 +1,16 @@
+{
+  "schema": "tool_registry.v0",
+  "canonical_path": "tool-registry://tools.v0",
+  "tools": [
+    {
+      "id": "registry.tool",
+      "doc_path_rel": "[monocoque.tools]/tools/v0/registry.tool.yaml",
+      "status": "active",
+      "notes": "self-hosted"
+    }
+  ],
+  "placeholders": [
+    "MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract",
+    "MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs"
+  ]
+}

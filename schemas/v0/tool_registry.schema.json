@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tool_registry.schema.v0",
+  "$comment": "MONOCOQUE_PLACEHOLDER(V0): metrics: drift/complexity computation output contract; MONOCOQUE_PLACEHOLDER(V0): gate: semantic version bump correctness based on schema/registry diffs",
+  "title": "Tool registry schema v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "canonical_path",
+    "tools",
+    "placeholders"
+  ],
+  "properties": {
+    "schema": {
+      "const": "tool_registry.v0"
+    },
+    "canonical_path": {
+      "type": "string",
+      "pattern": "^tool-registry://"
+    },
+    "tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "doc_path_rel",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "doc_path_rel": {
+            "type": "string",
+            "pattern": "^\\[[^\\]]\u002B\\]/"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "deprecated",
+              "inactive"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "placeholders": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
