@@ -1,0 +1,78 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AMEN.D: Analyze Visual Assets",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "Tools/AmenDVisualAnalysis/AmenDCli.py",
+        "AnalyzeConfig",
+        "--Config",
+        "AmenD.VisualAnalysis.json",
+        "--OutputDirectory",
+        ".data/AmenDVisualAnalysis",
+        "--FailOn",
+        "Error",
+        "--PrintProblemMatcher"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "problemMatcher": {
+        "owner": "AmenDVisualAnalysis",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+):(\\d+):(\\d+):\\s+(note|info|warning|error)\\s+(AODV\\d+):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "AMEN.D: Verify Visual Baseline",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "Tools/AmenDVisualAnalysis/AmenDCli.py",
+        "VerifyBaseline",
+        "--Config",
+        "AmenD.VisualAnalysis.json",
+        "--OutputDirectory",
+        ".data/AmenDVisualAnalysis",
+        "--FailOn",
+        "Error",
+        "--PrintProblemMatcher"
+      ],
+      "problemMatcher": {
+        "owner": "AmenDVisualAnalysis",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+):(\\d+):(\\d+):\\s+(note|info|warning|error)\\s+(AODV\\d+):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      }
+    }
+  ]
+}
