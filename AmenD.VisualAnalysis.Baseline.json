@@ -1,0 +1,92 @@
+{
+  "Schema": "AmenD.VisualAnalysis.Baseline/1.9.0",
+  "Tool": {
+    "Name": "AMEN.D Visual Static Analysis",
+    "Version": "1.9.0"
+  },
+  "ConfigIdentity": {
+    "algorithm_primary": "XXH3-128",
+    "xxh3_128_hex": "b086b91f2e1b7f8ea7f397de60de2245",
+    "xxh3_64_hex": "a7f397de60de2245"
+  },
+  "Policy": {
+    "SourceIdentity": "Observe",
+    "TranslationNormalizedIntrinsicGeometry": "Gate",
+    "BaselineUpdate": "ExplicitReview"
+  },
+  "Assets": [
+    {
+      "AssetId": "AngelOfDevLogo",
+      "AssetPath": "public/Brand/AngelOfDevLogo.png",
+      "SourceIdentity": {
+        "algorithm_primary": "XXH3-128",
+        "xxh3_128_hex": "d628bb741f8a81b306c74c8a210a0cc0",
+        "xxh3_64_hex": "06c74c8a210a0cc0"
+      },
+      "TruthSourceAdapter": "RgbBorderDistance",
+      "Intrinsic": {
+        "TranslationNormalizedFieldIdentity": {
+          "algorithm_primary": "XXH3-128",
+          "xxh3_128_hex": "d167bdcd551345c67e79a38ef1165c84",
+          "xxh3_64_hex": "7e79a38ef1165c84"
+        },
+        "WeightedAreaPx2": 32183.3737852907,
+        "BoundingBoxDimensionsPx": {
+          "Width": 327,
+          "Height": 319
+        },
+        "CovariancePx2": [
+          [
+            7527.907750025001,
+            6.136888471612675
+          ],
+          [
+            6.136888471612675,
+            4512.9521772914895
+          ]
+        ],
+        "EigenvaluesPx2": [
+          7527.920241500636,
+          4512.939685815855
+        ],
+        "EigenGapRatio": 0.400506442544849,
+        "UnnormalizedSecondMomentPx4": 387515495.73715484
+      },
+      "FrameAlignment": {
+        "Status": "Measured",
+        "FrameCenterXPx": 199.5,
+        "CentroidAxisXPx": 199.85520884483395,
+        "CentroidOffsetPx": 0.3552088448339532,
+        "BoundingBoxMidpointXPx": 200.0,
+        "BoundingBoxMidpointOffsetPx": 0.5,
+        "BestReflectionAxisXPx": 200.0,
+        "BestReflectionAxisOffsetPx": 0.5,
+        "BestReflectionIoU": 0.9418505942275043,
+        "RepresentativeAxisXPx": 200.0,
+        "RepresentativeAxisOffsetPx": 0.5,
+        "SemanticMarginsPx": {
+          "Left": 37,
+          "Right": 36,
+          "Top": 62,
+          "Bottom": 19
+        },
+        "HorizontalMarginImbalancePx": 1,
+        "EvidenceAxesXPx": [
+          199.85520884483395,
+          200.0,
+          200.0
+        ]
+      },
+      "CoreIdentity": {
+        "algorithm_primary": "XXH3-128",
+        "xxh3_128_hex": "8e4ac360ea4a63815dd1d83913da9e76",
+        "xxh3_64_hex": "5dd1d83913da9e76"
+      }
+    }
+  ],
+  "Identity": {
+    "algorithm_primary": "XXH3-128",
+    "xxh3_128_hex": "c4a3ba569c12f467d8debd86fa6c37e1",
+    "xxh3_64_hex": "d8debd86fa6c37e1"
+  }
+}
