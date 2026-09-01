@@ -7,7 +7,10 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "AmenD:Analyze": "python Tools/AmenDVisualAnalysis/AmenDCli.py AnalyzeConfig --Config AmenD.VisualAnalysis.json --OutputDirectory .data/AmenDVisualAnalysis --FailOn Error --PrintProblemMatcher",
+    "AmenD:VerifyBaseline": "python Tools/AmenDVisualAnalysis/AmenDCli.py VerifyBaseline --Config AmenD.VisualAnalysis.json --OutputDirectory .data/AmenDVisualAnalysis --FailOn Error --PrintProblemMatcher",
+    "AmenD:CreateBaseline": "python Tools/AmenDVisualAnalysis/AmenDCli.py CreateBaseline --Config AmenD.VisualAnalysis.json --Baseline AmenD.VisualAnalysis.Baseline.json --OutputDirectory .data/AmenDVisualAnalysis"
   },
   "dependencies": {
     "@nuxt/content": "^3.1.0",
