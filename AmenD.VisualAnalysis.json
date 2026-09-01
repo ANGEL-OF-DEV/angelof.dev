@@ -1,0 +1,40 @@
+{
+  "Schema": "AmenD.VisualAnalysis/1.9.0",
+  "BaselinePath": "AmenD.VisualAnalysis.Baseline.json",
+  "Analysis": {
+    "RsmeLevels": [24, 48, 96],
+    "RsmePhasesPx": [[0, 0], [1, 0], [0, 1], [1, 1]],
+    "OccupancyThreshold": 0.5,
+    "AspectPreservingLattice": true
+  },
+  "Assets": [
+    {
+      "AssetId": "AngelOfDevLogo",
+      "Path": "public/Brand/AngelOfDevLogo.png",
+      "TruthSource": {
+        "Mode": "RgbBorderDistance",
+        "BorderWidthRatio": 0.02,
+        "BorderNoiseQuantile": 0.995,
+        "BorderNoiseMultiplier": 2.2,
+        "MinimumForegroundDistance": 0.04,
+        "TransitionWidth": 0.04
+      },
+      "DesignConstraints": {
+        "HorizontalAnchor": {
+          "Mode": "FrameCenter",
+          "TolerancePx": 0.75,
+          "Severity": "warning"
+        },
+        "VerticalAnchor": {
+          "Mode": "ObserveOnly"
+        },
+        "MinimumPrincipalAxisEigenGapRatio": 0.005,
+        "Lattice": {
+          "MinimumTerminalIoU": 0.8,
+          "MaximumTerminalPhaseSpread": 0.05,
+          "InsufficiencySeverity": "warning"
+        }
+      }
+    }
+  ]
+}
